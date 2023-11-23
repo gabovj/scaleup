@@ -32,16 +32,16 @@ with st.expander('##### 8- EXECUTION+: Quarterly Company Priorities'):
 with st.expander('##### 8- EXECUTION+: Individual Priorities'):
      session_forms.session_eight_priorities_individual(email)
 with st.expander('##### 8- EXECUTION+: KPI'):
-     st.text('Falta')
+     session_forms.session_eight_kpi(email)
 
 
-with st.sidebar:
-        dashboard.check_s5(email)
-        st.divider()
-        dashboard.check_s6(email)
-        st.divider()
-        dashboard.check_s8(email)
-        dashboard.check_s8_priority(email)
-        dashboard.check_s8_priority_individual(email)
+# with st.sidebar:
+#         dashboard.check_s5(email)
+#         st.divider()
+#         dashboard.check_s6(email)
+#         st.divider()
+#         dashboard.check_s8(email)
+#         dashboard.check_s8_priority(email)
+#         dashboard.check_s8_priority_individual(email)
 #         st.divider()
 #         dashboard.check_s4_swot(email)

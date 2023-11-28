@@ -131,9 +131,8 @@ def get_user_info(access_token):
     }
 
     userinfo_response = requests.get(userinfo_url, headers=headers)
-
+    print(userinfo_response.json())
     return userinfo_response.json()
-
 
 # -------------------------------------------------------
 # Decode access token to JWT to get user's cognito groups
@@ -180,16 +179,30 @@ def get_user_cognito_groups(id_token):
 # -----------------------------
 # Set Streamlit state variables
 # -----------------------------
+# def set_st_state_vars():
+#     """
+#     Sets the streamlit state variables after user authentication.
+#     Returns:
+#         Nothing.
+#     """
+#     initialise_st_state_vars()
+#     auth_code = get_auth_code()
+#     access_token, id_token = get_user_tokens(auth_code)
+#     user_cognito_groups = get_user_cognito_groups(id_token)
+#     email_user = get_user_email(access_token)
+
+#     if access_token != "":
+#         st.session_state["auth_code"] = auth_code
+#         st.session_state["authenticated"] = True
+#         st.session_state["user_cognito_groups"] = user_cognito_groups
+#         st.session_state['email_user'] = email_user
+
 def set_st_state_vars():
-    """
-    Sets the streamlit state variables after user authentication.
-    Returns:
-        Nothing.
-    """
     initialise_st_state_vars()
     auth_code = get_auth_code()
     access_token, id_token = get_user_tokens(auth_code)
     user_cognito_groups = get_user_cognito_groups(id_token)
+    user_name = get_user_name(access_token)  # Now also retrieving the user's name
     email_user = get_user_email(access_token)
 
     if access_token != "":
@@ -197,6 +210,7 @@ def set_st_state_vars():
         st.session_state["authenticated"] = True
         st.session_state["user_cognito_groups"] = user_cognito_groups
         st.session_state['email_user'] = email_user
+        st.session_state['user_name'] = user_name  # Storing the user's name
 
 # -----------------------------
 # to get the email from user
@@ -216,13 +230,32 @@ def get_user_email(access_token):
     email = user_info.get('email', None)
     return email
 
+# -----------------------------
+# to get the name from user
+# -----------------------------
+def get_user_name(access_token):
+    """
+    Gets the authenticated user's email from AWS Cognito using the access token.
+
+    Args:
+        access_token: string access token from the AWS Cognito user pool
+                      retrieved using the access code.
+
+    Returns:
+        email: The email address of the authenticated user.
+    """
+    user_info = get_user_info(access_token)
+    user_name = user_info.get('name', None)
+    return user_name
 
 
 
 # -----------------------------
 # Login/ Logout HTML components
 # -----------------------------
-login_link = f"{COGNITO_DOMAIN}/login?client_id={CLIENT_ID}&response_type=code&scope=email+openid&redirect_uri={APP_URI}"
+login_link = f"{COGNITO_DOMAIN}/login?client_id={CLIENT_ID}&response_type=code&scope=email+openid+profile&redirect_uri={APP_URI}"
+
+# login_link = f"{COGNITO_DOMAIN}/login?client_id={CLIENT_ID}&response_type=code&scope=email+openid&redirect_uri={APP_URI}"
 logout_link = f"{COGNITO_DOMAIN}/logout?client_id={CLIENT_ID}&logout_uri={APP_URI}"
 
 html_css_login = """

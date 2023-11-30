@@ -11,17 +11,32 @@ client = MongoClient(mongo_uri)
 db = client["ScalingUP"]
 collection = db["Companies"]
 
-def session_one(email):
+def session_one(email, company_id):
     # Initialize MongoDB client and select database and collection
     mongo_uri = st.secrets["mongo_uri"]
     client = MongoClient(mongo_uri)
     db = client["ScalingUP"]
     collection = db["Companies"]
-    # Try to retrieve existing data for the user
-    existing_data = collection.find_one({"email": email})
-    # If existing data is found, use it to pre-fill the form; otherwise, use default values
-    prefill_data = existing_data.get("s1_rockefeller_habits", {})
+    # Initialize company_name with a default value
+    company_name = "No Company Selected"
+    # Update the query to include both email and company_id
+    query = {"email_coach": email, "company_id": company_id}
+    # Try to retrieve existing data for the specified email and company_id
+    existing_data = collection.find_one(query)
+    # Check if existing data is found, use it to pre-fill the form; otherwise, use default values
+    if existing_data:
+        prefill_data = existing_data.get("s1_rockefeller_habits", {})
+        # Update company_name if it exists in the document
+        company_name = existing_data.get("company_name", company_name)
+    else:
+        prefill_data = {}  # Use an empty dictionary if no data is found
     with st.form(key='s1'):
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write(f"Company: :orange[{st.session_state['company_name']}]")
+        with col2:
+            st.write(f"Company ID: :orange[{st.session_state['company_id']}]")
+        st.divider()
         st.markdown('##### :orange[Execution: Rockefeller Habits Checklist]')
         st.markdown('**:orange[1.- The executive team is healthy and aligned.]**')
         members_understand_differences = st.checkbox('Team members understand each other‘s differences, priorities, and styles.',
@@ -181,7 +196,7 @@ def session_one(email):
                     }
                 }
                 # Filter for the document to update
-                filter_doc = {"email": email}
+                filter_doc = {"email_coach": email, "company_id": company_id}
                  # Use the $set operator to update the desired fields
                 update_doc = {"$set": s1_rockefeller_habits}
                 # Use upsert=True to insert a new document if no matching document is found
@@ -193,7 +208,7 @@ def session_one(email):
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-def session_two_faith(email):
+def session_two_spirituality(email, company_id):
     # Initialize MongoDB client and select database and collection
     mongo_uri = st.secrets["mongo_uri"]
     client = MongoClient(mongo_uri)
@@ -201,130 +216,131 @@ def session_two_faith(email):
     collection = db["Companies"]
     
     # Try to retrieve existing data for the user
-    existing_data = collection.find_one({"email": email})
+    query = {"email_coach": email, "company_id": company_id}
+    existing_data = collection.find_one(query)
     
     # If existing data is found, use it to pre-fill the form; otherwise, use empty strings
-    prefill_data = existing_data.get("s2_oppp_faith", {}) if existing_data else {}
-    with st.form(key='s2_faith'):
+    prefill_data = existing_data.get("s2_oppp_spirituality", {}) if existing_data else {}
+    with st.form(key='s2_spirituality'):
         st.markdown('##### :orange[Spirituality 10-25 years (Aspirations)]')
         col1, col2, col3, col4 = st.columns(4)
         with col1: 
-            faith_relationships_10_25_years = st.text_area("Relationships", key="faith_relationship_10_25",
+            spirituality_relationships_10_25_years = st.text_area("Relationships", key="spirituality_relationship_10_25",
                                                          placeholder='SPIRITUALITY - Write the relationship aspirations you want to achieve in 10-25 years.',
-                                                         value=prefill_data.get("faith_10_25_years", {}).get("faith_relationships_10_25_years", ""))
+                                                         value=prefill_data.get("spirituality_10_25_years", {}).get("spirituality_relationships_10_25_years", ""))
         with col2:
-            faith_achievements_10_25_years = st.text_area("Achievements", key="faith_achievements_10_25",
+            spirituality_achievements_10_25_years = st.text_area("Achievements", key="spirituality_achievements_10_25",
                                                         placeholder='SPIRITUALITY - Write the achievements aspirations you want to achieve in 10-25 years.',
-                                                        value=prefill_data.get("faith_10_25_years", {}).get("faith_achievements_10_25_years", ""))
+                                                        value=prefill_data.get("spirituality_10_25_years", {}).get("spirituality_achievements_10_25_years", ""))
         with col3:
-            faith_rituals_10_25_years = st.text_area("Rituals", key="faith_rituals_10_25",
+            spirituality_rituals_10_25_years = st.text_area("Rituals", key="spirituality_rituals_10_25",
                                                    placeholder='SPIRITUALITY - Write the rituals aspirations you want to achieve in 10-25 years.',
-                                                   value=prefill_data.get("faith_10_25_years", {}).get("faith_rituals_10_25_years", ""))
+                                                   value=prefill_data.get("spirituality_10_25_years", {}).get("spirituality_rituals_10_25_years", ""))
         with col4:
-            faith_wealth_10_25_years = st.text_area("Wealth ($)", key="faith_wealth_10_25",
+            spirituality_wealth_10_25_years = st.text_area("Wealth ($)", key="spirituality_wealth_10_25",
                                                   placeholder='SPIRITUALITY - Write the wealth aspirations you want to achieve in 10-25 years.',
-                                                  value=prefill_data.get("faith_10_25_years", {}).get("faith_wealth_10_25_years", ""))
+                                                  value=prefill_data.get("spirituality_10_25_years", {}).get("spirituality_wealth_10_25_years", ""))
         st.divider()
         st.markdown('##### :orange[Spirituality 1 year (Activities)]')
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            faith_relationships_1_year = st.text_area("Relationships", key="faith_relationship_1",
+            spirituality_relationships_1_year = st.text_area("Relationships", key="spirituality_relationship_1",
                                                     placeholder='SPIRITUALITY - Write the relationship activities you plan to start in 1 year.',
-                                                    value=prefill_data.get("faith_1_year", {}).get("faith_relationships_1_year", ""))
+                                                    value=prefill_data.get("spirituality_1_year", {}).get("spirituality_relationships_1_year", ""))
         with col2:
-            faith_achievements_1_year = st.text_area("Achievements", key="faith_achievements_1",
+            spirituality_achievements_1_year = st.text_area("Achievements", key="spirituality_achievements_1",
                                                    placeholder='SPIRITUALITY - Write the achievements activities you plan to start in 1 year.',
-                                                   value=prefill_data.get("faith_1_year", {}).get("faith_achievements_1_year", ""))
+                                                   value=prefill_data.get("spirituality_1_year", {}).get("spirituality_achievements_1_year", ""))
         with col3:
-            faith_rituals_1_year = st.text_area("Rituals", key="faith_rituals_1",
+            spirituality_rituals_1_year = st.text_area("Rituals", key="spirituality_rituals_1",
                                               placeholder='SPIRITUALITY - Write the rituals activities you plan to start in 1 year.',
-                                              value=prefill_data.get("faith_1_year", {}).get("faith_rituals_1_year", ""))
+                                              value=prefill_data.get("spirituality_1_year", {}).get("spirituality_rituals_1_year", ""))
         with col4:
-            faith_wealth_1_year = st.text_area("Wealth ($)", key="faith_wealth_1",
+            spirituality_wealth_1_year = st.text_area("Wealth ($)", key="spirituality_wealth_1",
                                              placeholder='SPIRITUALITY - Write the wealth activities you plan to start in 1 year.',
-                                             value=prefill_data.get("faith_1_year", {}).get("faith_wealth_1_year", ""))
+                                             value=prefill_data.get("spirituality_1_year", {}).get("spirituality_wealth_1_year", ""))
         st.divider()
         st.markdown('##### :orange[Spirituality 90 days (Start Actions)]')
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            faith_relationships_start_90_days = st.text_area("Relationships", key="faith_relationships_90_start",
+            spirituality_relationships_start_90_days = st.text_area("Relationships", key="spirituality_relationships_90_start",
                                                            placeholder='SPIRITUALITY - Write the relationships actions you want to start in the next 90 days.', 
-                                                           value=prefill_data.get("faith_90_days", {}).get("faith_relationships_start_90_days", ""))
+                                                           value=prefill_data.get("spirituality_90_days", {}).get("spirituality_relationships_start_90_days", ""))
         with col2:
-            faith_achievements_start_90_days = st.text_area("Achievements", key="faith_achievements_90_start",
+            spirituality_achievements_start_90_days = st.text_area("Achievements", key="spirituality_achievements_90_start",
                                                           placeholder='SPIRITUALITY - Write the achivements actions you want to stop in the next 90 days.',
-                                                          value=prefill_data.get("faith_90_days", {}).get("faith_achievements_start_90_days", ""))
+                                                          value=prefill_data.get("spirituality_90_days", {}).get("spirituality_achievements_start_90_days", ""))
         with col3:
-            faith_rituals_start_90_days = st.text_area("Rituals", key="faith_rituals_90_start",
+            spirituality_rituals_start_90_days = st.text_area("Rituals", key="spirituality_rituals_90_start",
                                                      placeholder='SPIRITUALITY - Write the ritual actions you want to stop in the next 90 days.',
-                                                     value=prefill_data.get("faith_90_days", {}).get("faith_rituals_start_90_days", ""))
+                                                     value=prefill_data.get("spirituality_90_days", {}).get("spirituality_rituals_start_90_days", ""))
         with col4:
-            faith_wealth_start_90_days = st.text_area("Wealth ($)", key="faith_wealth_90_start",
+            spirituality_wealth_start_90_days = st.text_area("Wealth ($)", key="spirituality_wealth_90_start",
                                                     placeholder='SPIRITUALITY - Write the wealth actions you want to stop in the next 90 days.',
-                                                    value=prefill_data.get("faith_90_days", {}).get("faith_wealth_start_90_days", ""))
+                                                    value=prefill_data.get("spirituality_90_days", {}).get("spirituality_wealth_start_90_days", ""))
         st.divider()
         st.markdown('##### :orange[Spirituality 90 days (Stop Actions)]')
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            faith_relationships_stop_90_days = st.text_area("Relationships", key="faith_relationships_90_stop",
+            spirituality_relationships_stop_90_days = st.text_area("Relationships", key="spirituality_relationships_90_stop",
                                                           placeholder='SPIRITUALITY - Write the relationships actions you want to stop in the next 90 days',
-                                                          value=prefill_data.get("faith_90_days", {}).get("faith_relationships_stop_90_days", ""))
+                                                          value=prefill_data.get("spirituality_90_days", {}).get("spirituality_relationships_stop_90_days", ""))
         with col2:
-            faith_achievements_stop_90_days = st.text_area("Achievements", key="faith_achievements_90_stop",
+            spirituality_achievements_stop_90_days = st.text_area("Achievements", key="spirituality_achievements_90_stop",
                                                          placeholder='SPIRITUALITY - Write the achivements actions you want to stop in the next 90 days.',
-                                                         value=prefill_data.get("faith_90_days", {}).get("faith_achievements_stop_90_days", ""))
+                                                         value=prefill_data.get("spirituality_90_days", {}).get("spirituality_achievements_stop_90_days", ""))
         with col3:
-            faith_rituals_stop_90_days = st.text_area("Rituals", key="faith_rituals_90_stop",
+            spirituality_rituals_stop_90_days = st.text_area("Rituals", key="spirituality_rituals_90_stop",
                                                     placeholder='SPIRITUALITY - Write the ritual actions you want to stop in the next 90 days.',
-                                                    value=prefill_data.get("faith_90_days", {}).get("faith_rituals_stop_90_days", ""))
+                                                    value=prefill_data.get("spirituality_90_days", {}).get("spirituality_rituals_stop_90_days", ""))
         with col4:
-            faith_wealth_stop_90_days = st.text_area("Wealth ($)", key="faith_wealth_90_stop",
+            spirituality_wealth_stop_90_days = st.text_area("Wealth ($)", key="spirituality_wealth_90_stop",
                                                    placeholder='SPIRITUALITY - Write the wealth actions you want to stop in the next 90 days.',
-                                                   value=prefill_data.get("faith_90_days", {}).get("faith_wealth_stop_90_days", ""))
+                                                   value=prefill_data.get("spirituality_90_days", {}).get("spirituality_wealth_stop_90_days", ""))
         
-        submitted_s2_faith = st.form_submit_button(":orange[Save FAITH Info]")
-        if submitted_s2_faith:
+        submitted_s2_spirituality = st.form_submit_button(":orange[Save SPIRITUALITY Info]")
+        if submitted_s2_spirituality:
             try:
-                s2_faith = {
-                    "s2_oppp_faith": {
-                        "faith_90_days": {
-                            "faith_relationships_start_90_days": faith_relationships_start_90_days,
-                            "faith_relationships_stop_90_days": faith_relationships_stop_90_days,
-                            "faith_achievements_start_90_days": faith_achievements_start_90_days,
-                            "faith_achievements_stop_90_days": faith_achievements_stop_90_days,
-                            "faith_rituals_start_90_days": faith_rituals_start_90_days,
-                            "faith_rituals_stop_90_days": faith_rituals_stop_90_days,
-                            "faith_wealth_start_90_days": faith_wealth_start_90_days,
-                            "faith_wealth_stop_90_days": faith_wealth_stop_90_days,
+                s2_spirituality = {
+                    "s2_oppp_spirituality": {
+                        "spirituality_90_days": {
+                            "spirituality_relationships_start_90_days": spirituality_relationships_start_90_days,
+                            "spirituality_relationships_stop_90_days": spirituality_relationships_stop_90_days,
+                            "spirituality_achievements_start_90_days": spirituality_achievements_start_90_days,
+                            "spirituality_achievements_stop_90_days": spirituality_achievements_stop_90_days,
+                            "spirituality_rituals_start_90_days": spirituality_rituals_start_90_days,
+                            "spirituality_rituals_stop_90_days": spirituality_rituals_stop_90_days,
+                            "spirituality_wealth_start_90_days": spirituality_wealth_start_90_days,
+                            "spirituality_wealth_stop_90_days": spirituality_wealth_stop_90_days,
                         },
-                        "faith_1_year": {
-                            "faith_relationships_1_year": faith_relationships_1_year,
-                            "faith_achievements_1_year": faith_achievements_1_year,
-                            "faith_rituals_1_year": faith_rituals_1_year,
-                            "faith_wealth_1_year": faith_wealth_1_year,
+                        "spirituality_1_year": {
+                            "spirituality_relationships_1_year": spirituality_relationships_1_year,
+                            "spirituality_achievements_1_year": spirituality_achievements_1_year,
+                            "spirituality_rituals_1_year": spirituality_rituals_1_year,
+                            "spirituality_wealth_1_year": spirituality_wealth_1_year,
                         },
-                        "faith_10_25_years": {
-                            "faith_relationships_10_25_years": faith_relationships_10_25_years,
-                            "faith_achievements_10_25_years": faith_achievements_10_25_years,
-                            "faith_rituals_10_25_years": faith_rituals_10_25_years,
-                            "faith_wealth_10_25_years": faith_wealth_10_25_years,
+                        "spirituality_10_25_years": {
+                            "spirituality_relationships_10_25_years": spirituality_relationships_10_25_years,
+                            "spirituality_achievements_10_25_years": spirituality_achievements_10_25_years,
+                            "spirituality_rituals_10_25_years": spirituality_rituals_10_25_years,
+                            "spirituality_wealth_10_25_years": spirituality_wealth_10_25_years,
                         },
                     }
                 }
                 # Filter for the document to update
-                filter_doc = {"email": email}
+                filter_doc = {"email_coach": email, "company_id": company_id}
                  # Use the $set operator to update the desired fields
-                update_doc = {"$set": s2_faith}
+                update_doc = {"$set": s2_spirituality}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
                 # collection.insert_one(perfil)
-                st.success("FAITH info saved!")
+                st.success("SPIRITUALITY info saved!")
                 # time.sleep(3)
                 # st.rerun()
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-def session_two_family(email):
+def session_two_family(email, company_id):
     # Initialize MongoDB client and select database and collection
     mongo_uri = st.secrets["mongo_uri"]
     client = MongoClient(mongo_uri)
@@ -332,7 +348,8 @@ def session_two_family(email):
     collection = db["Companies"]
     
     # Try to retrieve existing data for the user
-    existing_data = collection.find_one({"email": email})
+    query = {"email_coach": email, "company_id": company_id}
+    existing_data = collection.find_one(query)
     
     # If existing data is found, use it to pre-fill the form; otherwise, use empty strings
     prefill_data = existing_data.get("s2_oppp_family", {}) if existing_data else {}
@@ -442,7 +459,7 @@ def session_two_family(email):
                     }
                 }
                 # Filter for the document to update
-                filter_doc = {"email": email}
+                filter_doc = {"email_coach": email, "company_id": company_id}
                  # Use the $set operator to update the desired fields
                 update_doc = {"$set": s2_family}
                 # Use upsert=True to insert a new document if no matching document is found
@@ -454,7 +471,7 @@ def session_two_family(email):
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-def session_two_friends(email):
+def session_two_friends(email, company_id):
     # Initialize MongoDB client and select database and collection
     mongo_uri = st.secrets["mongo_uri"]
     client = MongoClient(mongo_uri)
@@ -462,7 +479,8 @@ def session_two_friends(email):
     collection = db["Companies"]
     
     # Try to retrieve existing data for the user
-    existing_data = collection.find_one({"email": email})
+    query = {"email_coach": email, "company_id": company_id}
+    existing_data = collection.find_one(query)
     
     # If existing data is found, use it to pre-fill the form; otherwise, use empty strings
     prefill_data = existing_data.get("s2_oppp_friends", {}) if existing_data else {}
@@ -572,7 +590,7 @@ def session_two_friends(email):
                     }
                 }
                 # Filter for the document to update
-                filter_doc = {"email": email}
+                filter_doc = {"email_coach": email, "company_id": company_id}
                  # Use the $set operator to update the desired fields
                 update_doc = {"$set": s2_friends}
                 # Use upsert=True to insert a new document if no matching document is found
@@ -584,7 +602,7 @@ def session_two_friends(email):
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-def session_two_fitness(email):
+def session_two_fitness(email, company_id):
     # Initialize MongoDB client and select database and collection
     mongo_uri = st.secrets["mongo_uri"]
     client = MongoClient(mongo_uri)
@@ -592,7 +610,8 @@ def session_two_fitness(email):
     collection = db["Companies"]
     
     # Try to retrieve existing data for the user
-    existing_data = collection.find_one({"email": email})
+    query = {"email_coach": email, "company_id": company_id}
+    existing_data = collection.find_one(query)
     
     # If existing data is found, use it to pre-fill the form; otherwise, use empty strings
     prefill_data = existing_data.get("s2_oppp_fitness", {}) if existing_data else {}
@@ -702,7 +721,7 @@ def session_two_fitness(email):
                     }
                 }
                 # Filter for the document to update
-                filter_doc = {"email": email}
+                filter_doc = {"email_coach": email, "company_id": company_id}
                  # Use the $set operator to update the desired fields
                 update_doc = {"$set": s2_fitness}
                 # Use upsert=True to insert a new document if no matching document is found
@@ -714,7 +733,7 @@ def session_two_fitness(email):
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-def session_two_finance(email):
+def session_two_finance(email, company_id):
     # Initialize MongoDB client and select database and collection
     mongo_uri = st.secrets["mongo_uri"]
     client = MongoClient(mongo_uri)
@@ -722,7 +741,8 @@ def session_two_finance(email):
     collection = db["Companies"]
     
     # Try to retrieve existing data for the user
-    existing_data = collection.find_one({"email": email})
+    query = {"email_coach": email, "company_id": company_id}
+    existing_data = collection.find_one(query)
     
     # If existing data is found, use it to pre-fill the form; otherwise, use empty strings
     prefill_data = existing_data.get("s2_oppp_finance", {}) if existing_data else {}
@@ -832,7 +852,7 @@ def session_two_finance(email):
                     }
                 }
                 # Filter for the document to update
-                filter_doc = {"email": email}
+                filter_doc = {"email_coach": email, "company_id": company_id}
                  # Use the $set operator to update the desired fields
                 update_doc = {"$set": s2_finance}
                 # Use upsert=True to insert a new document if no matching document is found
@@ -844,15 +864,21 @@ def session_two_finance(email):
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-def session_three(email):
+def session_three(email, company_id):
     # Initialize MongoDB client and select database and collection
     mongo_uri = st.secrets["mongo_uri"]
     client = MongoClient(mongo_uri)
     db = client["ScalingUP"]
     collection = db["Companies"]
-    show_face(email)
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write(f"Company: :orange[{st.session_state['company_name']}]")
+    with col2:
+        st.write(f"Company ID: :orange[{st.session_state['company_id']}]")
+    st.divider()
+    show_face(email, company_id)
     
-    with st.form(key='s3'):
+    with st.form(key='s3', clear_on_submit=False):
         st.markdown('##### :orange[People: Function Accountability Chart (FACe)]')
         col1, col2 = st.columns(2)
         with col1:
@@ -874,7 +900,7 @@ def session_three(email):
                     } 
                 }
             # Filter for the document to update
-                filter_doc = {"email": email}
+                filter_doc = {"email_coach": email, "company_id": company_id}
                  # Use the $push operator to add
                 update_doc = {"$push": face_item}
                 # Use upsert=True to insert a new document if no matching document is found
@@ -886,9 +912,9 @@ def session_three(email):
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-def show_face(email):
-    
-    company_data = collection.find_one({"email": email})
+def show_face(email, company_id):
+    query = {"email_coach": email, "company_id": company_id}
+    company_data = collection.find_one(query)
     if company_data:
         face_data = company_data.get("s3_face", [])
         name_db = company_data.get("company_name", "Unknown Company")
@@ -906,19 +932,19 @@ def show_face(email):
                 button_key = f"delete_{face['function_name']}_{face['person_accountable']}"
                 # Display the delete button next to the face details with the unique key
                 if st.button(":red[Delete]", key=button_key):
-                    delete_face(email, face)
+                    delete_face(email, company_id, face)
                     # Refresh the page to see the updated list
                     st.rerun()
     else:
         st.info(f"No FACe data saved for {email}.")
 
-def delete_face(email, face_item):
+def delete_face(email, company_id, face_item):
     """
     Remove the specified face from the database.
     """
     try:
         collection.update_one(
-            {"email": email},
+            {"email_coach": email, "company_id": company_id},
             {"$pull": {"s3_face": face_item}}
         )
         st.success("FACe deleted!")
@@ -929,14 +955,14 @@ def session_four_opsp(email):
     st.markdown('##### One-Page Strategic Plan (OPSP)')
     st.text('Falta')
 
-def session_four_swt_strenght(email):
+def session_four_swt_strenght(email, company_id):
     # Initialize MongoDB client and select database and collection
     mongo_uri = st.secrets["mongo_uri"]
     client = MongoClient(mongo_uri)
     db = client["ScalingUP"]
     collection = db["Companies"]
     st.markdown('##### :orange[Strenghts]')
-    show_strengths(email)
+    show_strengths(email, company_id)
     with st.form(key='s4_SWT_strenghts'):    
         col1, col2 = st.columns(2)
         with col1:
@@ -953,20 +979,21 @@ def session_four_swt_strenght(email):
                     } 
                 }
             # Filter for the document to update
-                filter_doc = {"email": email}
+                filter_doc = {"email_coach": email, "company_id": company_id}
                  # Use the $push operator to add
                 update_doc = {"$push": strenght_item}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
                 # collection.insert_one(perfil)
                 st.success("Strenght saved!")
-                time.sleep(1)
+                # time.sleep(1)
                 st.rerun()
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-def show_strengths(email):
-    company_data = collection.find_one({"email": email})
+def show_strengths(email, company_id):
+    query = {"email_coach": email, "company_id": company_id}
+    company_data = collection.find_one(query)
     if company_data:
         strenght_data = company_data.get("s4_strenghts", [])
         name_db = company_data.get("company_name", "Unknown Company")
@@ -984,33 +1011,33 @@ def show_strengths(email):
                 button_key = f"delete_{strenght['strenght']}_{index}"
                 # Display the delete button next to the strenght details with the unique key
                 if st.button(":red[Delete]", key=button_key):
-                    delete_strenght(email, strenght)
+                    delete_strenght(email, company_id, strenght)
                     # Refresh the page to see the updated list
                     st.rerun()
     else:
         st.info(f"No FACe data saved for {email}.")
 
-def delete_strenght(email, strenght_item):
+def delete_strenght(email, company_id, strenght_item):
     """
     Remove the specified face from the database.
     """
     try:
         collection.update_one(
-            {"email": email},
+            {"email_coach": email, "company_id": company_id},
             {"$pull": {"s4_strenghts": strenght_item}}
         )
-        st.success("Strenght deleted!")
+        st.success("Deleted!")
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
-def session_four_swt_weaknesses(email):
+def session_four_swt_weaknesses(email, company_id):
     # Initialize MongoDB client and select database and collection
     mongo_uri = st.secrets["mongo_uri"]
     client = MongoClient(mongo_uri)
     db = client["ScalingUP"]
     collection = db["Companies"]
     st.markdown('##### :orange[Weaknesses]')
-    show_weaknesses(email)
+    show_weaknesses(email, company_id)
     with st.form(key='s4_SWT_Weaknesses'):    
         col1, col2 = st.columns(2)
         with col1:
@@ -1027,20 +1054,21 @@ def session_four_swt_weaknesses(email):
                     } 
                 }
             # Filter for the document to update
-                filter_doc = {"email": email}
+                filter_doc = {"email_coach": email, "company_id": company_id}
                  # Use the $push operator to add
                 update_doc = {"$push": weakness_item}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
                 # collection.insert_one(perfil)
                 st.success("Weakness saved!")
-                time.sleep(1)
+                # time.sleep(1)
                 st.rerun()
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-def show_weaknesses(email):
-    company_data = collection.find_one({"email": email})
+def show_weaknesses(email, company_id):
+    query = {"email_coach": email, "company_id": company_id}
+    company_data = collection.find_one(query)
     if company_data:
         weakness_data = company_data.get("s4_weaknesses", [])
         name_db = company_data.get("company_name", "Unknown Company")
@@ -1058,33 +1086,33 @@ def show_weaknesses(email):
                 button_key = f"delete_{weakness['weakness']}_{index}"
                 # Display the delete button next to the strenght details with the unique key
                 if st.button(":red[Delete]", key=button_key):
-                    delete_weakness(email, weakness)
+                    delete_weakness(email, company_id, weakness)
                     # Refresh the page to see the updated list
                     st.rerun()
     else:
         st.info(f"No weaknesses data saved for {email}.")
 
-def delete_weakness(email, weakness_item):
+def delete_weakness(email, company_id, weakness_item):
     """
     Remove the specified face from the database.
     """
     try:
         collection.update_one(
-            {"email": email},
+            {"email_coach": email, "company_id": company_id},
             {"$pull": {"s4_weaknesses": weakness_item}}
         )
         st.success("Weakness deleted!")
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
-def session_four_swt_trends(email):
+def session_four_swt_trends(email, company_id):
     # Initialize MongoDB client and select database and collection
     mongo_uri = st.secrets["mongo_uri"]
     client = MongoClient(mongo_uri)
     db = client["ScalingUP"]
     collection = db["Companies"]
     st.markdown('##### :orange[Trends]')
-    show_trends(email)
+    show_trends(email, company_id)
     with st.form(key='s4_SWT_Trends'):
         st.write("3.- What are your Business Trends?")    
         col1, col2, col3 = st.columns([1.6,.7,.7])
@@ -1105,20 +1133,21 @@ def session_four_swt_trends(email):
                     } 
                 }
             # Filter for the document to update
-                filter_doc = {"email": email}
+                filter_doc = {"email_coach": email, "company_id": company_id}
                  # Use the $push operator to add
                 update_doc = {"$push": trend_item}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
                 # collection.insert_one(perfil)
                 st.success("Trend saved!")
-                time.sleep(1)
+                # time.sleep(1)
                 st.rerun()
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-def show_trends(email):
-    company_data = collection.find_one({"email": email})
+def show_trends(email, company_id):
+    query = {"email_coach": email, "company_id": company_id}
+    company_data = collection.find_one(query)
     if company_data:
         trend_data = company_data.get("s4_trends", [])
         name_db = company_data.get("company_name", "Unknown Company")
@@ -1136,22 +1165,22 @@ def show_trends(email):
                 button_key = f"delete_{trend['trend']}_{index}"
                 # Display the delete button next to the strenght details with the unique key
                 if st.button(":red[Delete]", key=button_key):
-                    delete_trend(email, trend)
+                    delete_trend(email, company_id, trend)
                     # Refresh the page to see the updated list
                     st.rerun()
     else:
         st.info(f"No weaknesses data saved for {email}.")
 
-def delete_trend(email, trend_item):
+def delete_trend(email, company_id, trend_item):
     """
     Remove the specified face from the database.
     """
     try:
         collection.update_one(
-            {"email": email},
+            {"email_coach": email, "company_id": company_id},
             {"$pull": {"s4_trends": trend_item}}
         )
-        st.success("Trend deleted!")
+        st.success("Deleted!")
     except Exception as e:
         st.error(f"An error occurred: {e}")
 

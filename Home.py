@@ -37,7 +37,7 @@ if st.session_state["authenticated"]:
 else:
     col1, col2, col3 = st.columns(3)
     with col2:
-        st.image('test_logo.png', width=150)
+        st.image('test_logo.png', width=250)
     st.write("# Scaling up Forms db")
     st.markdown(
         """

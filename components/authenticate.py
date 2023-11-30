@@ -131,7 +131,6 @@ def get_user_info(access_token):
     }
 
     userinfo_response = requests.get(userinfo_url, headers=headers)
-    print(userinfo_response.json())
     return userinfo_response.json()
 
 # -------------------------------------------------------
@@ -179,23 +178,6 @@ def get_user_cognito_groups(id_token):
 # -----------------------------
 # Set Streamlit state variables
 # -----------------------------
-# def set_st_state_vars():
-#     """
-#     Sets the streamlit state variables after user authentication.
-#     Returns:
-#         Nothing.
-#     """
-#     initialise_st_state_vars()
-#     auth_code = get_auth_code()
-#     access_token, id_token = get_user_tokens(auth_code)
-#     user_cognito_groups = get_user_cognito_groups(id_token)
-#     email_user = get_user_email(access_token)
-
-#     if access_token != "":
-#         st.session_state["auth_code"] = auth_code
-#         st.session_state["authenticated"] = True
-#         st.session_state["user_cognito_groups"] = user_cognito_groups
-#         st.session_state['email_user'] = email_user
 
 def set_st_state_vars():
     initialise_st_state_vars()

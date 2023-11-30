@@ -58,11 +58,11 @@ def new_company(email, coach_name):
                     "num_employees": num_employees
                 }
                 collection.insert_one(new_company)
-                st.session_state['company_id'] = company_id
+                # st.session_state['company_id'] = company_id
                 st.success("Company created Succesfully!")
                 st.write(f"company ID: {st.session_state['company_id']}")
                 logging.info(f'New company ID generated: {company_id}')
-                return st.session_state['company_id']
+                return company_id
             except Exception as e:
                 logging.error(f"An error occurred: {e}")
                 st.error(f"An error occurred: {e}")
@@ -190,7 +190,7 @@ if st.session_state["authenticated"]:
     # Display profile data
     company_id = show_companies_by_coach(email, coach_name)
     st.divider()
-    st.session_state['company_id'] = company_id
+
     edita_perfil(email, company_id)
     # st.write(st.session_state)
     authenticate.button_logout()

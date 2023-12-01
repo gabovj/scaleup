@@ -2,6 +2,8 @@ import streamlit as st
 from pymongo import MongoClient
 import components.session_forms as session_forms
 import components.dashboard as dashboard
+import components.authenticate as authenticate
+import components.search as search
 
 st.set_page_config(
     page_title="Forms", 
@@ -22,6 +24,12 @@ client = MongoClient(mongo_uri)
 db = client["ScalingUP"]
 collection = db["Companies"]
 
+if 'authenticated' not in st.session_state:
+    st.session_state['authenticated'] = False
+
+if 'email_user' not in st.session_state:
+    st.session_state['email_user'] = None
+
 email = st.session_state['email_user']
 
 if 'company_id' not in st.session_state:
@@ -29,41 +37,11 @@ if 'company_id' not in st.session_state:
 if 'company_name' not in st.session_state:
     st.session_state['company_name'] = None
 
-def set_company_and_id(email):
-    filter_query = {
-        'email_coach': email,
-        # 'coach_name': coach_name,
-    }
-    documents = list(collection.find(filter_query))
-    # Initialize company_id to None or a default value
-    company_id = None
-    selected_company = None 
-
-    # Check if documents are found
-    if documents:
-        # Extract company names and create a mapping to the original documents
-        company_names = [doc['company_name'] for doc in documents]
-        company_to_doc = {doc['company_name']: doc for doc in documents}
-
-        # Create a form
-        with st.form("my_form"):
-            # Create a select box within the form
-            selected_company = st.selectbox("Select a company:", company_names, index=None)
-            # Form submission button
-            submitted = st.form_submit_button(":orange[Set Company]")
-
-        if submitted:  # Check if the form has been submitted
-            if selected_company:
-                selected_doc = company_to_doc[selected_company]
-                company_id = selected_doc.get('company_id')
-
-    return selected_company, company_id
-
 # Page start here
 if st.session_state["authenticated"]:
     with st.sidebar:
         st.write(f'Ahoj, {st.session_state["user_name"]}!')
-        selected_company, company_id = set_company_and_id(email)
+        selected_company, company_id = search.set_company_and_id(email)
 
         # Update the session state only if non-None values are returned
         if selected_company is not None:
@@ -80,10 +58,8 @@ if st.session_state["authenticated"]:
             st.write(f"Company ID: :orange[{st.session_state['company_id']}]")
         else:
             st.warning("No Company ID")
-    
-    st.text(st.session_state['company_name'])
-    st.text(st.session_state['company_id'])
-    st.text(st.session_state['email_user'])
+        st.divider()
+        authenticate.button_logout()
     
     company_id_selected = st.session_state['company_id']
     print(company_id_selected)
@@ -126,13 +102,14 @@ if st.session_state["authenticated"]:
         session_forms.session_four_swt_strenght(email, company_id_selected)
         session_forms.session_four_swt_weaknesses(email, company_id_selected)
         session_forms.session_four_swt_trends(email, company_id_selected)
-
-
-# with st.sidebar:
-#         dashboard.check_s1(email)
-#         st.divider()
-#         dashboard.check_s2(email)
-#         st.divider()
-#         dashboard.check_s3(email)
-#         st.divider()
-#         dashboard.check_s4_swot(email)
+else:
+    st.write("# Protected Zone")
+    st.markdown(
+        """
+        
+        """
+    )
+    st.markdown('Please Log In')
+    st.markdown('Please Log In')
+    st.write(st.session_state)
+    authenticate.button_login()

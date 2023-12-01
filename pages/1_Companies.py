@@ -180,11 +180,17 @@ def delete_company(email, company_id):
         st.error("Invalid company ID.")
 
 # Page start here
+if 'authenticated' not in st.session_state:
+    st.session_state['authenticated'] = False
+
+
 if st.session_state["authenticated"]:
     email = st.session_state['email_user']
     coach_name = st.session_state['user_name']
     with st.sidebar:
             st.write(f'Ahoj, {coach_name}!')
+            st.divider()
+            authenticate.button_logout()
     # Add new company
     new_company(email, coach_name)
     # Display profile data
@@ -193,7 +199,7 @@ if st.session_state["authenticated"]:
 
     edita_perfil(email, company_id)
     # st.write(st.session_state)
-    authenticate.button_logout()
+    
 else:
     st.write("# Protected Zone")
     st.markdown(

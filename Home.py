@@ -30,7 +30,6 @@ authenticate.set_st_state_vars()
 # Add login/logout buttons
 if st.session_state["authenticated"]:
     email = st.session_state['email_user']
-    # dashboard.get_db_company_info(email)
     dashboard.display_dashboard(email)
     
     authenticate.button_logout()

@@ -1184,17 +1184,28 @@ def delete_trend(email, company_id, trend_item):
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
-def session_five(email):
+def session_five(email, company_id):
     # Initialize MongoDB client and select database and collection
     mongo_uri = st.secrets["mongo_uri"]
     client = MongoClient(mongo_uri)
     db = client["ScalingUP"]
     collection = db["Companies"]
     # Try to retrieve existing data for the user
-    existing_data = collection.find_one({"email": email})
-    # If existing data is found, use it to pre-fill the form; otherwise, use default values
-    prefill_data = existing_data.get("s5_7_strata", {})
+    query = {"email_coach": email, "company_id": company_id}
+    existing_data = collection.find_one(query)
+
+    # Check if existing_data is not None
+    if existing_data:
+        prefill_data = existing_data.get("s5_7_strata", {})
+    else:
+        prefill_data = {}
     with st.form(key='s5'):
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write(f"Company: :orange[{st.session_state['company_name']}]")
+        with col2:
+            st.write(f"Company ID: :orange[{st.session_state['company_id']}]")
+        st.divider()
         st.markdown('##### :orange[7 Strata]')
         mindshare = st.text_area('Words You Own (Midshare):',
                                  value=prefill_data.get("mindshare", ""))
@@ -1246,7 +1257,7 @@ def session_five(email):
                     }
                 }
                 # Filter for the document to update
-                filter_doc = {"email": email}
+                filter_doc = {"email_coach": email, "company_id": company_id}
                  # Use the $set operator to update the desired fields
                 update_doc = {"$set": s5_7_strata}
                 # Use upsert=True to insert a new document if no matching document is found
@@ -1258,16 +1269,22 @@ def session_five(email):
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-def session_six(email):
+def session_six(email, company_id):
     # Initialize MongoDB client and select database and collection
     mongo_uri = st.secrets["mongo_uri"]
     client = MongoClient(mongo_uri)
     db = client["ScalingUP"]
     collection = db["Companies"]
     # Try to retrieve existing data for the user
-    existing_data = collection.find_one({"email": email})
-    # If existing data is found, use it to pre-fill the form; otherwise, use default values
-    prefill_data = existing_data.get("s6_cash", {})
+    query = {"email_coach": email, "company_id": company_id}
+    existing_data = collection.find_one(query)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write(f"Company: :orange[{st.session_state['company_name']}]")
+    with col2:
+        st.write(f"Company ID: :orange[{st.session_state['company_id']}]")
+    st.divider()
     st.markdown('##### :orange[Cash Acceleration Strategies (CASh)]')
     st.divider()
     titles = ['A) Ways to improve your Sales Cycle', 
@@ -1279,7 +1296,7 @@ def session_six(email):
     select_cash_ = [None] * len(titles)
 
     for index, t in enumerate(titles):
-        show_cash(email, array_name= f's6_cash_{index}', input_1=f'cash_{index}', input_2=f'select_cash_{index}')
+        show_cash(email, company_id, array_name= f's6_cash_{index}', input_1=f'cash_{index}', input_2=f'select_cash_{index}')
         with st.form(key=f's6_cash_{index}'):
             
             col1, col2 = st.columns(2)
@@ -1297,7 +1314,7 @@ def session_six(email):
                         } 
                     }
                     # Filter for the document to update
-                    filter_doc = {"email": email}
+                    filter_doc = {"email_coach": email, "company_id": company_id}
                     # Use the $set operator to update the desired fields
                     update_doc = {"$push": cash_item}
                     # Use upsert=True to insert a new document if no matching document is found
@@ -1310,9 +1327,9 @@ def session_six(email):
                     st.error(f"An error occurred: {e}")
         st.divider()
     
-def show_cash(email, array_name, input_1, input_2):
-    
-    company_data = collection.find_one({"email": email})
+def show_cash(email, company_id, array_name, input_1, input_2):
+    query = {"email_coach": email, "company_id": company_id}
+    company_data = collection.find_one(query)
     if company_data:
         cash_data = company_data.get(array_name, [])
         # name_db = company_data.get("company_name", "Unknown Company")
@@ -1329,31 +1346,39 @@ def show_cash(email, array_name, input_1, input_2):
                 button_key = f"delete_{cash[input_1]}_{cash[input_2]}"
                 # Display the delete button next to the face details with the unique key
                 if st.button(":red[Delete]", key=button_key):
-                    delete_cash(email, array_name, cash)
+                    delete_cash(email, company_id, array_name, cash)
                     # Refresh the page to see the updated list
                     st.rerun()
     else:
         st.info(f"No FACe data saved for {email}.")
 
-def delete_cash(email, array_name, cash_item):
+def delete_cash(email, company_id,array_name, cash_item):
     """
     Remove the specified face from the database.
     """
     try:
         collection.update_one(
-            {"email": email},
+            {"email_coach": email, "company_id": company_id},
             {"$pull": {array_name: cash_item}}
         )
-        st.success("FACe deleted!")
+        st.success("Deleted!")
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
-def session_seven_cash(email):
-    st.text('Falta')
+def session_seven_cash(email, company_id):
+    st.write('##### :orange[Metricas Clave de Efectivo]')
+    
+    
 
-def session_eight(email):
+def session_eight(email, company_id):
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write(f"Company: :orange[{st.session_state['company_name']}]")
+    with col2:
+        st.write(f"Company ID: :orange[{st.session_state['company_id']}]")
+    st.divider()
     st.markdown('##### :orange[Who • What • When (WWW)]')
-    show_www(email)
+    show_www(email, company_id)
     with st.form(key=f's8_www'):      
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -1365,15 +1390,17 @@ def session_eight(email):
         submitted_s8_www = st.form_submit_button(":orange[Add WWW]")
         if submitted_s8_www:
             try:
+                # Convert the date to a datetime object
+                when_datetime = datetime.combine(when, datetime.min.time())
                 www_item ={
                     "s8_www": {
                         "who": who,
                         "what": what,
-                        "when": when,
+                        "when": when_datetime,
                     } 
                 }
                 # Filter for the document to update
-                filter_doc = {"email": email}
+                filter_doc = {"email_coach": email, "company_id": company_id}
                 # Use the $set operator to update the desired fields
                 update_doc = {"$push": www_item}
                 # Use upsert=True to insert a new document if no matching document is found
@@ -1385,9 +1412,9 @@ def session_eight(email):
             except Exception as e:
                 st.error(f"An error occurred: {e}")
     
-def show_www(email):
-    
-    company_data = collection.find_one({"email": email})
+def show_www(email, company_id):
+    query = {"email_coach": email, "company_id": company_id}
+    company_data = collection.find_one(query)
     if company_data:
         www_data = company_data.get('s8_www', [])
         # name_db = company_data.get("company_name", "Unknown Company")
@@ -1396,35 +1423,45 @@ def show_www(email):
             col1, col2 = st.columns([0.9, 0.1])
             
             with col1:
-                # Display the cash details
-                st.markdown(f":orange[{index}-] {www.get('who', 'N/A')} :orange[/] {www.get('what', 'N/A')} :orange[/] {www.get('when', 'N/A')}")
+                # Retrieve and format the date
+                when_date = www.get('when', None)
+                formatted_date = when_date.strftime('%d-%b-%Y').upper() if when_date else 'N/A'
+                
+                # Display the WWW data
+                st.markdown(f":orange[{index}-] {www.get('who', 'N/A')} :orange[/] {www.get('what', 'N/A')} :orange[/] {formatted_date}")
                 
             with col2:
                 # Construct a unique key for the button based on the face details
                 button_key = f"delete_{www['who']}_{www['what']}"
                 # Display the delete button next to the face details with the unique key
                 if st.button(":red[Delete]", key=button_key):
-                    delete_www(email, www)
+                    delete_www(email, company_id, www)
                     # Refresh the page to see the updated list
                     st.rerun()
     else:
         st.info(f"No WWW data saved for {email}.")
 
-def delete_www(email, www_item):
+def delete_www(email, company_id, www_item):
     """
     Remove the specified face from the database.
     """
     try:
         collection.update_one(
-            {"email": email},
+            {"email_coach": email, "company_id": company_id},
             {"$pull": {'s8_www': www_item}}
         )
-        st.success("WWW deleted!")
+        st.success("Deleted!")
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
-def session_eight_winning_moves(email):
-    show_winning_moves(email)
+def session_eight_winning_moves(email, company_id):
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write(f"Company: :orange[{st.session_state['company_name']}]")
+    with col2:
+        st.write(f"Company ID: :orange[{st.session_state['company_id']}]")
+    st.divider()
+    show_winning_moves(email, company_id)
     with st.form(key=f's8_winning_moves'):
         st.markdown('##### :orange[Winning Moves]')
         col1, col2, col3= st.columns(3)
@@ -1434,10 +1471,10 @@ def session_eight_winning_moves(email):
             winning_move_owner = st.text_input('Owner')
         with col3:
             winning_move_end_date = st.date_input('End date', format="DD/MM/YYYY", value=None)        
-        winning_move_supergreen = st.text_input('Super Green')
-        winning_move_green = st.text_input('Green')
-        winning_move_yellow = st.text_input('Yellow')
-        winning_move_red = st.text_input('red')
+        winning_move_supergreen = st.text_input(':green[Super Green]')
+        winning_move_green = st.text_input(':green[Green]')
+        winning_move_yellow = st.text_input(':orange[Yellow]')
+        winning_move_red = st.text_input(':red[Red]')
 
         submitted_s8_winning_move = st.form_submit_button(":orange[Add Winning Move]")
         if submitted_s8_winning_move:
@@ -1455,7 +1492,7 @@ def session_eight_winning_moves(email):
                     } 
                 }
                 # Filter for the document to update
-                filter_doc = {"email": email}
+                filter_doc = {"email_coach": email, "company_id": company_id}
                 # Use the $set operator to update the desired fields
                 update_doc = {"$push": winning_move_item}
                 # Use upsert=True to insert a new document if no matching document is found
@@ -1467,58 +1504,65 @@ def session_eight_winning_moves(email):
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-def show_winning_moves(email):
-    company_data = collection.find_one({"email": email})
+def show_winning_moves(email, company_id):
+    query = {"email_coach": email, "company_id": company_id}
+    company_data = collection.find_one(query)
     if company_data:
-        wm_data = company_data.get('s8_winning_moves', [])
-        # name_db = company_data.get("company_name", "Unknown Company")
-        for index, wm in enumerate(wm_data, start=1):
-            # Use columns to layout cash details and delete button
-            col1, col2 = st.columns([0.9, 0.1])
-            
-            with col1:
-                # Display the cash details
-                st.markdown(f":orange[{index}-] {wm.get('wm_name', 'N/A')} :orange[/] {wm.get('wm_owner', 'N/A')}")
-                st.markdown(f":green[SuperGreen]: {wm.get('winning_move_supergreen', 'N/A')}")
-                st.markdown(f":green[Green]: {wm.get('winning_move_green', 'N/A')}")
-                st.markdown(f":orange[Yellow]: {wm.get('winning_move_yellow', 'N/A')}")
-                st.markdown(f":red[Red]: {wm.get('winning_move_red', 'N/A')}")
-            with col2:
-                # Construct a unique key for the button based on the face details
-                button_key = f"delete_{wm['wm_name']}_{wm['wm_owner']}"
-                # Display the delete button next to the face details with the unique key
-                if st.button(":red[Delete]", key=button_key):
-                    delete_wm(email, wm)
-                    # Refresh the page to see the updated list
-                    st.rerun()
+        wm_data = company_data.get('s8_winning_moves', None)
+        if wm_data:
+            for index, wm in enumerate(wm_data, start=1):
+                # Use columns to layout cash details and delete button
+                col1, col2 = st.columns([0.9, 0.1])
+                
+                with col1:
+                    # Display the cash details
+                    st.markdown(f":orange[{index}-] {wm.get('wm_name', 'N/A')} :orange[/] {wm.get('wm_owner', 'N/A')}")
+                    st.markdown(f":green[SuperGreen]: {wm.get('winning_move_supergreen', 'N/A')}")
+                    st.markdown(f":green[Green]: {wm.get('winning_move_green', 'N/A')}")
+                    st.markdown(f":orange[Yellow]: {wm.get('winning_move_yellow', 'N/A')}")
+                    st.markdown(f":red[Red]: {wm.get('winning_move_red', 'N/A')}")
+                with col2:
+                    # Construct a unique key for the button based on the face details
+                    button_key = f"delete_{wm['wm_name']}_{wm['wm_owner']}"
+                    # Display the delete button next to the face details with the unique key
+                    if st.button(":red[Delete]", key=button_key):
+                        delete_wm(email, company_id, wm)
+                        # Refresh the page to see the updated list
+                        st.rerun()
+        else:
+            # Display an info message if 's8_winning_moves' does not exist or is empty
+            st.info(f'No winning moves data available for :red[{st.session_state["company_name"]}], add some winning moves!')                        
     else:
-        st.info(f"No WWW data saved for {email}.")
+        st.info(f"No data saved for {st.session_state['company_name']}.")
 
-def delete_wm(email, wm_item):
+def delete_wm(email, company_id, wm_item):
     """
     Remove the specified face from the database.
     """
     try:
         collection.update_one(
-            {"email": email},
+            {"email_coach": email, "company_id": company_id},
             {"$pull": {'s8_winning_moves': wm_item}}
         )
         st.success("Deleted")
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
-def session_eight_anual_company_priorities(email):
+def session_eight_anual_company_priorities(email, company_id):
     # Initialize MongoDB client and select database and collection
     mongo_uri = st.secrets["mongo_uri"]
     client = MongoClient(mongo_uri)
     db = client["ScalingUP"]
     collection = db["Companies"]
-    # Try to retrieve existing data for the user
-    existing_data = collection.find_one({"email": email})
-    # If existing data is found, use it to pre-fill the form; otherwise, use default values
-    prefill_data = existing_data.get("s8_anual_company_priority_smart", {})
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write(f"Company: :orange[{st.session_state['company_name']}]")
+    with col2:
+        st.write(f"Company ID: :orange[{st.session_state['company_id']}]")
+    st.divider()
     st.markdown('##### :orange[Anual Company Priorities]')
-    show_anual_priority(email)
+    show_anual_priority(email, company_id)
     with st.form(key='s8_anual_priorities'):
         anual_company_priority = st.text_input('Anual Company Priority')
         col1, col2 = st.columns(2)
@@ -1526,10 +1570,10 @@ def session_eight_anual_company_priorities(email):
             acp_owner = st.text_input('Owner')
         with col2:
             acp_end_date = st.date_input('End date', format="DD/MM/YYYY", value=None)
-        acp_supergreen = st.text_input('Super Green', key="acp_SG")
-        acp_green = st.text_input('Green', key="acp_G")
-        acp_yellow = st.text_input('Yellow', key="acp_Y")
-        acp_red = st.text_input('Red', key="acp_R")
+        acp_supergreen = st.text_input(':green[Super Green]', key="acp_SG")
+        acp_green = st.text_input(':green[Green]', key="acp_G")
+        acp_yellow = st.text_input(':orange[Yellow]', key="acp_Y")
+        acp_red = st.text_input(':red[Red]', key="acp_R")
         submitted_s8_anual_priority = st.form_submit_button(":orange[Add anual priority]")
         if submitted_s8_anual_priority:
             try:
@@ -1546,72 +1590,81 @@ def session_eight_anual_company_priorities(email):
                     } 
                 }
                 # Filter for the document to update
-                filter_doc = {"email": email}
+                filter_doc = {"email_coach": email, "company_id": company_id}
                 # Use the $set operator to update the desired fields
                 update_doc = {"$push": anual_priority_item}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
                 # collection.insert_one(perfil)
                 st.success("Company Priority saved!")
-                time.sleep(1)
                 st.rerun()
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-def show_anual_priority(email):
-    company_data = collection.find_one({"email": email})
+def show_anual_priority(email, company_id):
+    query = {"email_coach": email, "company_id": company_id}
+    company_data = collection.find_one(query)
     if company_data:
-        priorities_data = company_data.get('s8_anual_company_priorities', [])
-        # name_db = company_data.get("company_name", "Unknown Company")
-        for index, priority in enumerate(priorities_data, start=1):
-            # Use columns to layout cash details and delete button
-            col1, col2 = st.columns([0.9, 0.1])
-            
-            with col1:
-                # Display the cash details
-                st.markdown(f":orange[{index}-] {priority.get('anual_company_priority', 'N/A')} :orange[/] {priority.get('acp_owner', 'N/A')}")
-                st.markdown(f":green[SuperGreen]: {priority.get('acp_supergreen', 'N/A')}")
-                st.markdown(f":green[Green]: {priority.get('acp_green', 'N/A')}")
-                st.markdown(f":orange[Yellow]: {priority.get('acp_yellow', 'N/A')}")
-                st.markdown(f":red[Red]: {priority.get('acp_red', 'N/A')}")
+        priorities_data = company_data.get('s8_anual_company_priorities', None)
+        if priorities_data:
+            for index, priority in enumerate(priorities_data, start=1):
+                # Use columns to layout cash details and delete button
+                col1, col2 = st.columns([0.9, 0.1])
                 
-            with col2:
-                # Construct a unique key for the button based on the face details
-                button_key = f"delete_{priority['anual_company_priority']}_{priority['acp_owner']}"
-                # Display the delete button next to the face details with the unique key
-                if st.button(":red[Delete]", key=button_key):
-                    delete_anual_priority(email, priority)
-                    # Refresh the page to see the updated list
-                    st.rerun()
+                with col1:
+                    # Display the cash details
+                    st.markdown(f":orange[{index}-] {priority.get('anual_company_priority', 'N/A')} :orange[/] {priority.get('acp_owner', 'N/A')}")
+                    st.markdown(f":green[SuperGreen]: {priority.get('acp_supergreen', 'N/A')}")
+                    st.markdown(f":green[Green]: {priority.get('acp_green', 'N/A')}")
+                    st.markdown(f":orange[Yellow]: {priority.get('acp_yellow', 'N/A')}")
+                    st.markdown(f":red[Red]: {priority.get('acp_red', 'N/A')}")
+                    
+                with col2:
+                    # Construct a unique key for the button based on the face details
+                    button_key = f"delete_{priority['anual_company_priority']}_{priority['acp_owner']}"
+                    # Display the delete button next to the face details with the unique key
+                    if st.button(":red[Delete]", key=button_key):
+                        delete_anual_priority(email, company_id, priority)
+                        # Refresh the page to see the updated list
+                        st.rerun()
+        else:
+            st.info(f"No anual priorities saved for :red[{st.session_state['company_name']}], add some anual priorities!:point_down:")
     else:
         st.info(f"No anual priorities saved for {email}.")
 
-def delete_anual_priority(email, priority_item):
+def delete_anual_priority(email, company_id, priority_item):
     """
     Remove the specified face from the database.
     """
     try:
         collection.update_one(
-            {"email": email},
+            {"email_coach": email, "company_id": company_id},
             {"$pull": {'s8_anual_company_priorities': priority_item}}
         )
         st.success(" deleted!")
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
-def session_eight_quarterly_company_priorities(email):
+def session_eight_quarterly_company_priorities(email, company_id):
     # Initialize MongoDB client and select database and collection
     mongo_uri = st.secrets["mongo_uri"]
     client = MongoClient(mongo_uri)
     db = client["ScalingUP"]
     collection = db["Companies"]
     # Try to retrieve existing data for the user
-    existing_data = collection.find_one({"email": email})    
+    query = {"email_coach": email, "company_id": company_id}
+    existing_data = collection.find_one(query)    
     prefill_data_2 = existing_data.get("s8_anual_company_priorities", {})
     # Use list comprehension to extract 'company_priority' from each dictionary
     anual_priorities = [item['anual_company_priority'] for item in prefill_data_2]
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write(f"Company: :orange[{st.session_state['company_name']}]")
+    with col2:
+        st.write(f"Company ID: :orange[{st.session_state['company_id']}]")
+    st.divider()
     st.markdown('##### :orange[Quarterly Company Priorities]')
-    show_quarterly_priority(email)
+    show_quarterly_priority(email, company_id)
     with st.form(key='s8_quarterly_priorities'):
         quarterly_company_priority = st.text_input('Quarterly Company Priority')
         col1, col2 = st.columns(2)
@@ -1621,10 +1674,10 @@ def session_eight_quarterly_company_priorities(email):
         with col2:
             qcp_end_date = st.date_input('End date', format="DD/MM/YYYY", value=None)      
             anual_priority_parent = st.selectbox('Anual priority', (anual_priorities), index=None)
-        qcp_supergreen = st.text_input('Super Green', key="qcp_SG")
-        qcp_green = st.text_input('Green', key="qcp_G")
-        qcp_yellow = st.text_input('Yellow', key="qcp_Y")
-        qcp_red = st.text_input('Red', key="qcp_R")
+        qcp_supergreen = st.text_input(':green[Super Green]', key="qcp_SG")
+        qcp_green = st.text_input(':green[Green]', key="qcp_G")
+        qcp_yellow = st.text_input(':orange[Yellow]', key="qcp_Y")
+        qcp_red = st.text_input(':red[Red]', key="qcp_R")
         
         submitted_s8_quarterly_priority = st.form_submit_button(":orange[Add quarterly priority]")
         if submitted_s8_quarterly_priority:
@@ -1644,64 +1697,73 @@ def session_eight_quarterly_company_priorities(email):
                     } 
                 }
                 # Filter for the document to update
-                filter_doc = {"email": email}
+                filter_doc = {"email_coach": email, "company_id": company_id}
                 # Use the $set operator to update the desired fields
                 update_doc = {"$push": quarterly_priority_item}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
                 # collection.insert_one(perfil)
                 st.success("Quarterly priority saved!")
-                time.sleep(1)
                 st.rerun()
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-def show_quarterly_priority(email):
-    company_data = collection.find_one({"email": email})
+def show_quarterly_priority(email, company_id):
+    query = {"email_coach": email, "company_id": company_id}
+    company_data = collection.find_one(query)
     if company_data:
-        priorities_data = company_data.get('s8_quarterly_company_priorities', [])
-        # name_db = company_data.get("company_name", "Unknown Company")
-        for index, q_priority in enumerate(priorities_data, start=1):
-            # Use columns to layout cash details and delete button
-            col1, col2 = st.columns([0.9, 0.1])
-            
-            with col1:
-                # Display the cash details
-                st.markdown(f":orange[{index}-] {q_priority.get('quarterly_company_priority', 'N/A')} :orange[/] {q_priority.get('qcp_owner', 'N/A')} :orange[/] {q_priority.get('anual_priority_parent', 'N/A')}")
-                st.markdown(f":green[SuperGreen]: {q_priority.get('qcp_supergreen', 'N/A')}")
-                st.markdown(f":green[Green]: {q_priority.get('qcp_green', 'N/A')}")
-                st.markdown(f":orange[Yellow]: {q_priority.get('qcp_yellow', 'N/A')}")
-                st.markdown(f":red[Red]: {q_priority.get('qcp_red', 'N/A')}")
-            with col2:
-                # Construct a unique key for the button based on the face details
-                button_key = f"delete_{q_priority['quarterly_company_priority']}_{q_priority['qcp_owner']}"
-                # Display the delete button next to the face details with the unique key
-                if st.button(":red[Delete]", key=button_key):
-                    delete_quarterly_priority(email, q_priority)
-                    # Refresh the page to see the updated list
-                    st.rerun()
+        priorities_data = company_data.get('s8_quarterly_company_priorities', None)
+        if priorities_data:
+            for index, q_priority in enumerate(priorities_data, start=1):
+                # Use columns to layout cash details and delete button
+                col1, col2 = st.columns([0.9, 0.1])
+                
+                with col1:
+                    # Display the cash details
+                    st.markdown(f":orange[{index}-] {q_priority.get('quarterly_company_priority', 'N/A')} :orange[/] {q_priority.get('qcp_owner', 'N/A')} :orange[/] {q_priority.get('anual_priority_parent', 'N/A')}")
+                    st.markdown(f":green[SuperGreen]: {q_priority.get('qcp_supergreen', 'N/A')}")
+                    st.markdown(f":green[Green]: {q_priority.get('qcp_green', 'N/A')}")
+                    st.markdown(f":orange[Yellow]: {q_priority.get('qcp_yellow', 'N/A')}")
+                    st.markdown(f":red[Red]: {q_priority.get('qcp_red', 'N/A')}")
+                with col2:
+                    # Construct a unique key for the button based on the face details
+                    button_key = f"delete_{q_priority['quarterly_company_priority']}_{q_priority['qcp_owner']}"
+                    # Display the delete button next to the face details with the unique key
+                    if st.button(":red[Delete]", key=button_key):
+                        delete_quarterly_priority(email, company_id,q_priority)
+                        # Refresh the page to see the updated list
+                        st.rerun()
+        else:
+            st.info(f"No quarterly priorities saved for :red[{st.session_state['company_name']}], add some quarterly priorities!:point_down:")
     else:
         st.info(f"No anual priorities saved for {email}.")
 
-def delete_quarterly_priority(email, priority_item):
+def delete_quarterly_priority(email, company_id, priority_item):
     """
     Remove the specified face from the database.
     """
     try:
         collection.update_one(
-            {"email": email},
+            {"email_coach": email, "company_id": company_id},
             {"$pull": {'s8_quarterly_company_priorities': priority_item}}
         )
         st.success(" deleted!")
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
-def session_eight_priorities_individual(email):
-    existing_data = collection.find_one({"email": email})
+def session_eight_priorities_individual(email, company_id):
+    query = {"email_coach": email, "company_id": company_id}
+    existing_data = collection.find_one(query)
     qcp_data = existing_data.get("s8_quarterly_company_priorities", {})
     q_priorities = [item['quarterly_company_priority'] for item in qcp_data]
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write(f"Company: :orange[{st.session_state['company_name']}]")
+    with col2:
+        st.write(f"Company ID: :orange[{st.session_state['company_id']}]")
+    st.divider()
     st.markdown('##### :orange[Individual Priorities]')
-    show_priority_individual(email)
+    show_priority_individual(email, company_id)
     with st.form(key='s8_priorities_individual'):
         individual_priority = st.text_input('Individual Priority')
         col1, col2, col3 = st.columns(3)
@@ -1711,10 +1773,10 @@ def session_eight_priorities_individual(email):
             deadline_individual = st.date_input('Deadline', value=None, format='DD/MM/YYYY')
         with col3:
             quarterly_priority_parent = st.selectbox('Quarterly priority', (q_priorities), index=None)
-        ip_supergreen = st.text_input('Super Green', key="ip_SG")
-        ip_green = st.text_input('Green', key="ip_G")
-        ip_yellow = st.text_input('Yellow', key="ip_Y")
-        ip_red = st.text_input('Red', key="ip_R")
+        ip_supergreen = st.text_input(':green[Super Green]', key="ip_SG")
+        ip_green = st.text_input(':green[Green]', key="ip_G")
+        ip_yellow = st.text_input(':orange[Yellow]', key="ip_Y")
+        ip_red = st.text_input(':red[Red]', key="ip_R")
         submitted_s8_priority_individual = st.form_submit_button(":orange[Add Individual Priority]")
         if submitted_s8_priority_individual:
             deadline_individual =deadline_individual.strftime("%d/%m/%Y")
@@ -1732,61 +1794,69 @@ def session_eight_priorities_individual(email):
                     } 
                 }
                 # Filter for the document to update
-                filter_doc = {"email": email}
+                filter_doc = {"email_coach": email, "company_id": company_id}
                 # Use the $set operator to update the desired fields
                 update_doc = {"$push": individual_priority_item}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
                 # collection.insert_one(perfil)
                 st.success("Individual Priority saved!")
-                time.sleep(1)
                 st.rerun()
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-def show_priority_individual(email):
-    company_data = collection.find_one({"email": email})
+def show_priority_individual(email, company_id):
+    query = {"email_coach": email, "company_id": company_id}
+    company_data = collection.find_one(query)
     if company_data:
-        ipriorities_data = company_data.get('s8_individual_priorities', [])
-        # name_db = company_data.get("company_name", "Unknown Company")
-        for index, ipriority in enumerate(ipriorities_data, start=1):
-            # Use columns to layout cash details and delete button
-            col1, col2 = st.columns([0.9, 0.1])
-            
-            with col1:
-                # Display the cash details
-                st.markdown(f":orange[{index}-] {ipriority.get('individual_priority', 'N/A')} :orange[/] {ipriority.get('ip_owner', 'N/A')} :orange[/] {ipriority.get('quarterly_priority_parent', 'N/A')}")
-                st.markdown(f":green[SuperGreen]: {ipriority.get('ip_supergreen', 'N/A')}")
-                st.markdown(f":green[Green]: {ipriority.get('ip_green', 'N/A')}")
-                st.markdown(f":orange[Yellow]: {ipriority.get('ip_yellow', 'N/A')}")
-                st.markdown(f":red[Red]: {ipriority.get('ip_red', 'N/A')}")
-            with col2:
-                # Construct a unique key for the button based on the face details
-                button_key = f"delete_{ipriority['individual_priority']}_{ipriority['ip_owner']}"
-                # Display the delete button next to the face details with the unique key
-                if st.button(":red[Delete]", key=button_key):
-                    delete_priority_individual(email, ipriority)
-                    # Refresh the page to see the updated list
-                    st.rerun()
+        ipriorities_data = company_data.get('s8_individual_priorities', None)
+        if ipriorities_data:
+            for index, ipriority in enumerate(ipriorities_data, start=1):
+                # Use columns to layout cash details and delete button
+                col1, col2 = st.columns([0.9, 0.1])
+                
+                with col1:
+                    # Display the cash details
+                    st.markdown(f":orange[{index}-] {ipriority.get('individual_priority', 'N/A')} :orange[/] {ipriority.get('ip_owner', 'N/A')} :orange[/] {ipriority.get('quarterly_priority_parent', 'N/A')}")
+                    st.markdown(f":green[SuperGreen]: {ipriority.get('ip_supergreen', 'N/A')}")
+                    st.markdown(f":green[Green]: {ipriority.get('ip_green', 'N/A')}")
+                    st.markdown(f":orange[Yellow]: {ipriority.get('ip_yellow', 'N/A')}")
+                    st.markdown(f":red[Red]: {ipriority.get('ip_red', 'N/A')}")
+                with col2:
+                    # Construct a unique key for the button based on the face details
+                    button_key = f"delete_{ipriority['individual_priority']}_{ipriority['ip_owner']}"
+                    # Display the delete button next to the face details with the unique key
+                    if st.button(":red[Delete]", key=button_key):
+                        delete_priority_individual(email, company_id, ipriority)
+                        # Refresh the page to see the updated list
+                        st.rerun()
+        else:
+            st.info(f"No individual priorities saved for :red[{st.session_state['company_name']}], add some individual priorities!:point_down:")
     else:
         st.info(f"No Individual priority saved for {email}.")
 
-def delete_priority_individual(email, ipriority_item):
+def delete_priority_individual(email, company_id, ipriority_item):
     """
     Remove the specified face from the database.
     """
     try:
         collection.update_one(
-            {"email": email},
+            {"email_coach": email, "company_id": company_id},
             {"$pull": {'s8_individual_priorities': ipriority_item}}
         )
         st.success(" deleted!")
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
-def session_eight_kpi(email):
+def session_eight_kpi(email, company_id):
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write(f"Company: :orange[{st.session_state['company_name']}]")
+    with col2:
+        st.write(f"Company ID: :orange[{st.session_state['company_id']}]")
+    st.divider()
     st.markdown('##### :orange[KPIs]')
-    show_kpi(email)
+    show_kpi(email, company_id)
     with st.form(key='s8_kpis'):
         st.markdown('##### Define your process and KPIs')
         stage_name = st.text_input('Stage name')
@@ -1796,10 +1866,10 @@ def session_eight_kpi(email):
            living_kpi = st.text_input('Living KPI')
         with col2:
             living_kpi_owner = st.text_input('Owner', key="living_kpi_owner")
-        living_kpi_supergreen = st.text_input('Super Green', key="living_kpi_SG")
-        living_kpi_green = st.text_input('Green', key="living_kpi_G")
-        living_kpi_yellow = st.text_input('Yellow', key="living_kpi_Y")
-        living_kpi_red = st.text_input('Red', key="living_kpi_R")
+        living_kpi_supergreen = st.text_input(':green[Super Green]', key="living_kpi_SG")
+        living_kpi_green = st.text_input(':green[Green]', key="living_kpi_G")
+        living_kpi_yellow = st.text_input(':orange[Yellow]', key="living_kpi_Y")
+        living_kpi_red = st.text_input(':red[Red]', key="living_kpi_R")
 
         st.divider()
         col1, col2 = st.columns([.7,.3])
@@ -1807,10 +1877,10 @@ def session_eight_kpi(email):
            lagging_kpi = st.text_input('Lagging KPI')
         with col2:
             lagging_kpi_owner = st.text_input('Owner', key="lagging_kpi_owner")
-        lagging_kpi_supergreen = st.text_input('Super Green', key="lagging_kpi_SG")
-        lagging_kpi_green = st.text_input('Green', key="lagging_kpi_G")
-        lagging_kpi_yellow = st.text_input('Yellow', key="lagging_kpi_Y")
-        lagging_kpi_red = st.text_input('Red', key="lagging_kpi_R")
+        lagging_kpi_supergreen = st.text_input(':green[Super Green]', key="lagging_kpi_SG")
+        lagging_kpi_green = st.text_input(':green[Green]', key="lagging_kpi_G")
+        lagging_kpi_yellow = st.text_input(':orange[Yellow]', key="lagging_kpi_Y")
+        lagging_kpi_red = st.text_input(':red[Red]', key="lagging_kpi_R")
         
         st.divider()
         col1, col2 = st.columns([.7,.3])
@@ -1818,10 +1888,10 @@ def session_eight_kpi(email):
            efficiency_kpi = st.text_input('Efficiency KPI')
         with col2:
             efficiency_kpi_owner = st.text_input('Owner', key="efficiency_kpi_owner")
-        efficiency_kpi_supergreen = st.text_input('Super Green', key="efficiency_kpi_SG")
-        efficiency_kpi_green = st.text_input('Green', key="efficiency_kpi_G")
-        efficiency_kpi_yellow = st.text_input('Yellow', key="efficiency_kpi_Y")
-        efficiency_kpi_red = st.text_input('Red', key="efficiency_kpi_R")  
+        efficiency_kpi_supergreen = st.text_input(':green[Super Green]', key="efficiency_kpi_SG")
+        efficiency_kpi_green = st.text_input(':green[Green]', key="efficiency_kpi_G")
+        efficiency_kpi_yellow = st.text_input(':orange[Yellow]', key="efficiency_kpi_Y")
+        efficiency_kpi_red = st.text_input(':red[Red]', key="efficiency_kpi_R")  
         
         submitted_s8_kpi = st.form_submit_button(":orange[Add Stage]")
         if submitted_s8_kpi:
@@ -1864,57 +1934,60 @@ def session_eight_kpi(email):
                     } 
                 }
                 # Filter for the document to update
-                filter_doc = {"email": email}
+                filter_doc = {"email_coach": email, "company_id": company_id}
                 # Use the $set operator to update the desired fields
                 update_doc = {"$push": stage_item}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
                 # collection.insert_one(perfil)
                 st.success("Stage saved!")
-                time.sleep(1)
                 st.rerun()
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-def show_kpi(email):
-    company_data = collection.find_one({"email": email})
+def show_kpi(email, company_id):
+    query = {"email_coach": email, "company_id": company_id}
+    company_data = collection.find_one(query)
     if company_data:
-        kpi_data = company_data.get('s8_stage_kpis', [])
-        for index, kpi in enumerate(kpi_data, start=1):
-            for stage_name, stage_details in kpi.items():
-                col1, col2 = st.columns([0.9, 0.1])
-                with col1:
-                    st.markdown(f":orange[{index}-] {stage_name}")
-                    # Access 'living' KPI details
-                    living_kpi_details = stage_details.get('living', {})
-                    living_kpi = living_kpi_details.get('living_kpi', 'N/A')
-                    st.markdown(f":orange[Living KPI:] {living_kpi}")
-                    # Access 'lagging' KPI details
-                    lagging_kpi_details = stage_details.get('lagging', {})
-                    lagging_kpi = lagging_kpi_details.get('lagging_kpi', 'N/A')
-                    st.markdown(f":orange[Lagging KPI:] {lagging_kpi}")
-                    # Access 'efficiency' KPI details
-                    efficiency_kpi_details = stage_details.get('efficiency', {})
-                    efficiency_kpi = efficiency_kpi_details.get('efficiency_kpi', 'N/A')
-                    st.markdown(f":orange[Efficiency KPI:] {efficiency_kpi}")
-                with col2:
-                    # Construct a unique key for the button based on the face details
-                    button_key = f"delete_{kpi[stage_name]}"
-                    # Display the delete button next to the face details with the unique key
-                    if st.button(":red[Delete]", key=button_key):
-                        delete_kpi(email, kpi)
-                        # Refresh the page to see the updated list
-                        st.rerun()
+        kpi_data = company_data.get('s8_stage_kpis', None)
+        if kpi_data:
+            for index, kpi in enumerate(kpi_data, start=1):
+                for stage_name, stage_details in kpi.items():
+                    col1, col2 = st.columns([0.9, 0.1])
+                    with col1:
+                        st.markdown(f":orange[{index}-] {stage_name}")
+                        # Access 'living' KPI details
+                        living_kpi_details = stage_details.get('living', {})
+                        living_kpi = living_kpi_details.get('living_kpi', 'N/A')
+                        st.markdown(f":orange[Living KPI:] {living_kpi}")
+                        # Access 'lagging' KPI details
+                        lagging_kpi_details = stage_details.get('lagging', {})
+                        lagging_kpi = lagging_kpi_details.get('lagging_kpi', 'N/A')
+                        st.markdown(f":orange[Lagging KPI:] {lagging_kpi}")
+                        # Access 'efficiency' KPI details
+                        efficiency_kpi_details = stage_details.get('efficiency', {})
+                        efficiency_kpi = efficiency_kpi_details.get('efficiency_kpi', 'N/A')
+                        st.markdown(f":orange[Efficiency KPI:] {efficiency_kpi}")
+                    with col2:
+                        # Construct a unique key for the button based on the face details
+                        button_key = f"delete_{kpi[stage_name]}"
+                        # Display the delete button next to the face details with the unique key
+                        if st.button(":red[Delete]", key=button_key):
+                            delete_kpi(email, company_id, kpi)
+                            # Refresh the page to see the updated list
+                            st.rerun()
+        else:
+            st.info(f"No Kpi's saved for :red[{st.session_state['company_name']}], add some Kpi's!:point_down:")
     else:
         st.info(f"No Individual priority saved for {email}.")
 
-def delete_kpi(email, stage_item):
+def delete_kpi(email, company_id, stage_item):
     """
     Remove the specified KPI from the database.
     """
     try:
         collection.update_one(
-            {"email": email},
+            {"email_coach": email, "company_id": company_id},
             {"$pull": {'s8_stage_kpis': stage_item}}
         )
         st.success(f"{stage_item} deleted!")

@@ -2,6 +2,7 @@ import streamlit as st
 from pymongo import MongoClient
 import time
 from datetime import datetime
+import components.metricas_efectiv as mce
 
 # Use your MongoDB Atlas connection string here
 mongo_uri = st.secrets["mongo_uri"]
@@ -1366,7 +1367,101 @@ def delete_cash(email, company_id,array_name, cash_item):
         st.error(f"An error occurred: {e}")
 
 def session_seven_cash(email, company_id):
+    query = {"email_coach": email, "company_id": company_id}
+    company_data = collection.find_one(query)
+    if company_data:
+        prefill_data = company_data.get("s7_metricas_efectivo", {})
     st.write('##### :orange[Metricas Clave de Efectivo]')
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write(f"Company: :orange[{st.session_state['company_name']}]")
+    with col2:
+        st.write(f"Company ID: :orange[{st.session_state['company_id']}]")
+    st.divider()
+    with st.form(key='metricas_clave_efectivo'):
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write(':orange[Índice de Solvencia]')
+            activo_circulante = st.number_input('Activo circulante')
+            pasivo_corto_plazo = st.number_input('Pasivo corto plazo')
+            mce.indice_solvencia(email, company_id)
+            st.divider()
+
+            st.write(':orange[Días Cartera]')
+            promedio_cuentas_por_cobrar_clientes = st.number_input('Promedio cuentas por cobrar a clientes')
+            ventas_netas = st.number_input('Ventas Netas')
+            mce.dias_cartera(email, company_id)
+            st.divider()
+
+            st.write(':orange[Días proveedor]')
+            promedio_cuentas_por_pagar_proveedores = st.number_input('Promedio de cuentas por pagar a proveedores')
+            compras_netas = st.number_input('Compras netas (promedio de inventarios)')
+            mce.dias_proveedor(email, company_id)
+            st.divider()
+
+            st.write(':orange[Utilidad Neta]')
+            ventas_netas_display = prefill_data.get("ventas_netas", 0)
+            costo_ventas_display = prefill_data.get("costo_ventas", 0)
+            st.markdown('Ventas netas')
+            st.markdown(ventas_netas_display)
+            st.markdown('Costo de ventas')
+            st.markdown(costo_ventas_display)
+            gastos_totales = st.number_input('Gastos totales', value=None)
+            mce.utilidad_neta(email, company_id)
+            
+        
+        
+        with col2:
+            st.write(':orange[Rentabilidad de las Ventas]')
+            utilidad_neta = st.number_input('Utilidad Neta')
+            st.markdown('Ventas netas')
+            st.markdown(ventas_netas_display)
+            mce.rentabilidad_ventas(email, company_id)
+            st.divider()
+
+            st.write(':orange[Días Inventario]')
+            promedio_inventarios = st.number_input('Promedio inventarios')
+            costo_ventas = st.number_input('Costo de ventas')
+            mce.dias_inventario(email, company_id)
+            st.divider()
+
+            st.write(':orange[Apalancamiento]')
+            pasivo_total = st.number_input('Pasivo total', value=None)
+            activo_total = st.number_input('Activo total', value=None)
+            mce.apalancamiento(email, company_id)
+
+        submit_metricas_clave_efectivo = st.form_submit_button(':orange[Calcular metricas]')
+
+        if submit_metricas_clave_efectivo:
+            try:
+                metricas_efectivo_item = {
+                    "s7_metricas_efectivo":{
+                        "activo_circulante": activo_circulante,
+                        "pasivo_corto_plazo": pasivo_corto_plazo,
+                        "promedio_cuentas_por_cobrar_clientes": promedio_cuentas_por_cobrar_clientes,
+                        "ventas_netas": ventas_netas,
+                        "promedio_cuentas_por_pagar_proveedores": promedio_cuentas_por_pagar_proveedores,
+                        "compras_netas": compras_netas,
+                        "utilidad_neta": utilidad_neta,
+                        "promedio_inventarios": promedio_inventarios,
+                        "costo_ventas": costo_ventas,
+                        "pasivo_total": pasivo_total,
+                        "activo_total": activo_total,
+                        "gastos_totales": gastos_totales,
+                    }
+                }
+                # Filter for the document to update
+                filter_doc = {"email_coach": email, "company_id": company_id}
+                # Use the $set operator to update the desired fields
+                update_doc = {"$set": metricas_efectivo_item}
+                # Use upsert=True to insert a new document if no matching document is found
+                collection.update_one(filter_doc, update_doc, upsert=True)
+                # collection.insert_one(perfil)
+                with st.spinner('Generando Metricas!'):
+                    time.sleep(1)
+                st.rerun()
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
     
     
 

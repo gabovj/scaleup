@@ -74,15 +74,9 @@ if st.session_state["authenticated"]:
      with st.expander('##### 8- EXECUTION+: KPI'):
           session_forms.session_eight_kpi(email, company_id_selected)
 else:
-    st.write("# Protected Zone")
-    st.markdown(
-        """
-        
-        """
-    )
-    st.markdown('Please Log In')
-    st.markdown('Please Log In')
-    st.write(st.session_state)
-    authenticate.button_login()
-
+    st.write("# Please Log In")
+    # st.write(st.session_state)
+    with st.sidebar:
+        st.divider()
+        authenticate.button_login()
 

@@ -30,17 +30,24 @@ authenticate.set_st_state_vars()
 # Add login/logout buttons
 if st.session_state["authenticated"]:
     email = st.session_state['email_user']
-    dashboard.display_dashboard(email)
+    # dashboard.display_dashboard(email)
+    st.write('Under construction')
     
-    authenticate.button_logout()
+    coach_name = st.session_state['user_name']
+    with st.sidebar:
+            st.write(f'Ahoj, {coach_name}!')
+            st.divider()
+            authenticate.button_logout()
 else:
     col1, col2, col3 = st.columns(3)
     with col2:
         st.image('test_logo.png', width=250)
-    st.write("# Scaling up Forms db")
+    st.title("Scaling Up forms")
     st.markdown(
         """
-        test site
+        Please Log in
     """
     )
-    authenticate.button_login()
+    with st.sidebar:
+        st.divider()
+        authenticate.button_login()

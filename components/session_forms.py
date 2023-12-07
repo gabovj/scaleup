@@ -202,10 +202,21 @@ def session_one(email, company_id):
                 update_doc = {"$set": s1_rockefeller_habits}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
-                # collection.insert_one(perfil)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Updated: s1_rockefeller_habits",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": s1_rockefeller_habits
+                    }
+                }
+                log_collection.insert_one(log_entry)
+
                 st.success("Habits saved!")
-                # time.sleep(3)
-                # st.rerun()
+
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
@@ -334,7 +345,18 @@ def session_two_spirituality(email, company_id):
                 update_doc = {"$set": s2_spirituality}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
-                # collection.insert_one(perfil)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Updated: s2_spirituality",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": s2_spirituality
+                    }
+                }
+                log_collection.insert_one(log_entry)
                 st.success("SPIRITUALITY info saved!")
                 # time.sleep(3)
                 # st.rerun()
@@ -465,7 +487,18 @@ def session_two_family(email, company_id):
                 update_doc = {"$set": s2_family}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
-                # collection.insert_one(perfil)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Updated: s2_family",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": s2_family
+                    }
+                }
+                log_collection.insert_one(log_entry)
                 st.success("FAMILY info saved!")
                 # time.sleep(3)
                 # st.rerun()
@@ -596,7 +629,18 @@ def session_two_friends(email, company_id):
                 update_doc = {"$set": s2_friends}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
-                # collection.insert_one(perfil)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Updated: s2_friends",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": s2_friends
+                    }
+                }
+                log_collection.insert_one(log_entry)
                 st.success("FRIENDS info saved!")
                 # time.sleep(3)
                 # st.rerun()
@@ -727,7 +771,18 @@ def session_two_fitness(email, company_id):
                 update_doc = {"$set": s2_fitness}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
-                # collection.insert_one(perfil)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Updated: s2_fitness",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": s2_fitness
+                    }
+                }
+                log_collection.insert_one(log_entry)
                 st.success("FITNESS info saved!")
                 # time.sleep(3)
                 # st.rerun()
@@ -858,7 +913,18 @@ def session_two_finance(email, company_id):
                 update_doc = {"$set": s2_finance}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
-                # collection.insert_one(perfil)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Updated: s2_finance",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": s2_finance
+                    }
+                }
+                log_collection.insert_one(log_entry)
                 st.success("FINANCE info saved!")
                 # time.sleep(3)
                 # st.rerun()
@@ -906,7 +972,18 @@ def session_three(email, company_id):
                 update_doc = {"$push": face_item}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
-                # collection.insert_one(perfil)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Added: face_item",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": face_item
+                    }
+                }
+                log_collection.insert_one(log_entry)
                 st.success("FACe saved!")
                 time.sleep(1)
                 st.rerun()
@@ -948,6 +1025,18 @@ def delete_face(email, company_id, face_item):
             {"email_coach": email, "company_id": company_id},
             {"$pull": {"s3_face": face_item}}
         )
+        # Log the action
+        log_collection = db["ScaleUpActionLogs"]
+        log_entry = {
+            "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+            "action": "Deleted: face_item",
+            "details": {
+                "email": email,
+                "company_id": company_id,
+                "changes": face_item
+            }
+        }
+        log_collection.insert_one(log_entry)
         st.success("FACe deleted!")
     except Exception as e:
         st.error(f"An error occurred: {e}")
@@ -979,13 +1068,24 @@ def session_four_swt_strenght(email, company_id):
                         "strenght": strenght,
                     } 
                 }
-            # Filter for the document to update
+                # Filter for the document to update
                 filter_doc = {"email_coach": email, "company_id": company_id}
                  # Use the $push operator to add
                 update_doc = {"$push": strenght_item}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
-                # collection.insert_one(perfil)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Added: strenght_item",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": strenght_item
+                    }
+                }
+                log_collection.insert_one(log_entry)
                 st.success("Strenght saved!")
                 # time.sleep(1)
                 st.rerun()
@@ -1027,6 +1127,18 @@ def delete_strenght(email, company_id, strenght_item):
             {"email_coach": email, "company_id": company_id},
             {"$pull": {"s4_strenghts": strenght_item}}
         )
+        # Log the action
+        log_collection = db["ScaleUpActionLogs"]
+        log_entry = {
+            "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+            "action": "Deleted: strenght_item",
+            "details": {
+                "email": email,
+                "company_id": company_id,
+                "changes": strenght_item
+            }
+        }
+        log_collection.insert_one(log_entry)
         st.success("Deleted!")
     except Exception as e:
         st.error(f"An error occurred: {e}")
@@ -1054,13 +1166,24 @@ def session_four_swt_weaknesses(email, company_id):
                         "weakness": weakness,
                     } 
                 }
-            # Filter for the document to update
+                # Filter for the document to update
                 filter_doc = {"email_coach": email, "company_id": company_id}
                  # Use the $push operator to add
                 update_doc = {"$push": weakness_item}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
-                # collection.insert_one(perfil)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Added: weakness_item",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": weakness_item
+                    }
+                }
+                log_collection.insert_one(log_entry)
                 st.success("Weakness saved!")
                 # time.sleep(1)
                 st.rerun()
@@ -1102,6 +1225,18 @@ def delete_weakness(email, company_id, weakness_item):
             {"email_coach": email, "company_id": company_id},
             {"$pull": {"s4_weaknesses": weakness_item}}
         )
+        # Log the action
+        log_collection = db["ScaleUpActionLogs"]
+        log_entry = {
+            "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+            "action": "Deleted: weakness_item",
+            "details": {
+                "email": email,
+                "company_id": company_id,
+                "changes": weakness_item
+            }
+        }
+        log_collection.insert_one(log_entry)
         st.success("Weakness deleted!")
     except Exception as e:
         st.error(f"An error occurred: {e}")
@@ -1133,13 +1268,24 @@ def session_four_swt_trends(email, company_id):
                         "action_trend": action_trend,
                     } 
                 }
-            # Filter for the document to update
+                # Filter for the document to update
                 filter_doc = {"email_coach": email, "company_id": company_id}
                  # Use the $push operator to add
                 update_doc = {"$push": trend_item}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
-                # collection.insert_one(perfil)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Added: trend_item",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": trend_item
+                    }
+                }
+                log_collection.insert_one(log_entry)
                 st.success("Trend saved!")
                 # time.sleep(1)
                 st.rerun()
@@ -1181,6 +1327,18 @@ def delete_trend(email, company_id, trend_item):
             {"email_coach": email, "company_id": company_id},
             {"$pull": {"s4_trends": trend_item}}
         )
+        # Log the action
+        log_collection = db["ScaleUpActionLogs"]
+        log_entry = {
+            "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+            "action": "Deleted: trend_item",
+            "details": {
+                "email": email,
+                "company_id": company_id,
+                "changes": trend_item
+            }
+        }
+        log_collection.insert_one(log_entry)
         st.success("Deleted!")
     except Exception as e:
         st.error(f"An error occurred: {e}")
@@ -1263,7 +1421,18 @@ def session_five(email, company_id):
                 update_doc = {"$set": s5_7_strata}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
-                # collection.insert_one(perfil)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Updated: s5_7_strata",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": s5_7_strata
+                    }
+                }
+                log_collection.insert_one(log_entry)
                 st.success("7 Strata saved!")
                 # time.sleep(3)
                 # st.rerun()
@@ -1320,9 +1489,19 @@ def session_six(email, company_id):
                     update_doc = {"$push": cash_item}
                     # Use upsert=True to insert a new document if no matching document is found
                     collection.update_one(filter_doc, update_doc, upsert=True)
-                    # collection.insert_one(perfil)
+                    # Log the action
+                    log_collection = db["ScaleUpActionLogs"]
+                    log_entry = {
+                        "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                        "action": "Added: cash_item",
+                        "details": {
+                            "email": email,
+                            "company_id": company_id,
+                            "changes": cash_item
+                        }
+                    }
+                    log_collection.insert_one(log_entry)
                     st.success("Data saved!")
-                    time.sleep(1)
                     st.rerun()
                 except Exception as e:
                     st.error(f"An error occurred: {e}")
@@ -1362,6 +1541,18 @@ def delete_cash(email, company_id,array_name, cash_item):
             {"email_coach": email, "company_id": company_id},
             {"$pull": {array_name: cash_item}}
         )
+        # Log the action
+        log_collection = db["ScaleUpActionLogs"]
+        log_entry = {
+            "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+            "action": "Deleted: cash_item",
+            "details": {
+                "email": email,
+                "company_id": company_id,
+                "changes": cash_item
+            }
+        }
+        log_collection.insert_one(log_entry)
         st.success("Deleted!")
     except Exception as e:
         st.error(f"An error occurred: {e}")
@@ -1456,7 +1647,18 @@ def session_seven_cash(email, company_id):
                 update_doc = {"$set": metricas_efectivo_item}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
-                # collection.insert_one(perfil)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Updated: metricas_efectivo_item",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": metricas_efectivo_item
+                    }
+                }
+                log_collection.insert_one(log_entry)
                 with st.spinner('Generando Metricas!'):
                     time.sleep(1)
                 st.rerun()
@@ -1500,7 +1702,18 @@ def session_eight(email, company_id):
                 update_doc = {"$push": www_item}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
-                # collection.insert_one(perfil)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Added: www_item",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": www_item
+                    }
+                }
+                log_collection.insert_one(log_entry)
                 st.success("WWW saved!")
                 time.sleep(1)
                 st.rerun()
@@ -1545,6 +1758,18 @@ def delete_www(email, company_id, www_item):
             {"email_coach": email, "company_id": company_id},
             {"$pull": {'s8_www': www_item}}
         )
+        # Log the action
+        log_collection = db["ScaleUpActionLogs"]
+        log_entry = {
+            "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+            "action": "Deleted: www_item",
+            "details": {
+                "email": email,
+                "company_id": company_id,
+                "changes": www_item
+            }
+        }
+        log_collection.insert_one(log_entry)
         st.success("Deleted!")
     except Exception as e:
         st.error(f"An error occurred: {e}")
@@ -1592,9 +1817,19 @@ def session_eight_winning_moves(email, company_id):
                 update_doc = {"$push": winning_move_item}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
-                # collection.insert_one(perfil)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Added: winning_move_item",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": winning_move_item
+                    }
+                }
+                log_collection.insert_one(log_entry)
                 st.success("Winning move saved!")
-                time.sleep(1)
                 st.rerun()
             except Exception as e:
                 st.error(f"An error occurred: {e}")
@@ -1639,6 +1874,18 @@ def delete_wm(email, company_id, wm_item):
             {"email_coach": email, "company_id": company_id},
             {"$pull": {'s8_winning_moves': wm_item}}
         )
+        # Log the action
+        log_collection = db["ScaleUpActionLogs"]
+        log_entry = {
+            "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+            "action": "Deleted: winning_move_item",
+            "details": {
+                "email": email,
+                "company_id": company_id,
+                "changes": wm_item
+            }
+        }
+        log_collection.insert_one(log_entry)
         st.success("Deleted")
     except Exception as e:
         st.error(f"An error occurred: {e}")
@@ -1690,7 +1937,18 @@ def session_eight_anual_company_priorities(email, company_id):
                 update_doc = {"$push": anual_priority_item}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
-                # collection.insert_one(perfil)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Added: anual_priority_item",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": anual_priority_item
+                    }
+                }
+                log_collection.insert_one(log_entry)
                 st.success("Company Priority saved!")
                 st.rerun()
             except Exception as e:
@@ -1736,6 +1994,18 @@ def delete_anual_priority(email, company_id, priority_item):
             {"email_coach": email, "company_id": company_id},
             {"$pull": {'s8_anual_company_priorities': priority_item}}
         )
+        # Log the action
+        log_collection = db["ScaleUpActionLogs"]
+        log_entry = {
+            "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+            "action": "Deleted: anual_priority_item",
+            "details": {
+                "email": email,
+                "company_id": company_id,
+                "changes": priority_item
+            }
+        }
+        log_collection.insert_one(log_entry)
         st.success(" deleted!")
     except Exception as e:
         st.error(f"An error occurred: {e}")

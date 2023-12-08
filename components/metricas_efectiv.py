@@ -18,14 +18,14 @@ def indice_solvencia(email, company_id):
         pasivo_corto_plazo = prefill_data.get("pasivo_corto_plazo", 0)
 
         try:
-            activo_circulante = float(activo_circulante)
-            pasivo_corto_plazo = float(pasivo_corto_plazo)
+            activo_circulante = 0 if activo_circulante is None else float(activo_circulante)
+            pasivo_corto_plazo = 0 if pasivo_corto_plazo is None else float(pasivo_corto_plazo)
             if pasivo_corto_plazo != 0:
                 indice_solvencia_resultado = activo_circulante / pasivo_corto_plazo
-                st.markdown(f'Indice de solvencia = :orange[{indice_solvencia_resultado}]')
-                st.markdown(f'Por cada peso que debo tengo :orange[**${indice_solvencia_resultado}**] para hacer frente a mis deudas.')
+                st.info(f'Indice de solvencia = :orange[{indice_solvencia_resultado}]')
+                st.info(f'Por cada peso que debo tengo :orange[**${indice_solvencia_resultado}**] para hacer frente a mis deudas.')
             else:
-                st.write("Pasivo a corto plazo es cero, no se puede calcular el índice de solvencia.")
+                st.error("Pasivo a corto plazo es cero, no se puede calcular el índice de solvencia.")
         except ValueError:
             st.write("Los datos de activo circulante o pasivo a corto plazo no son numéricos.")
 
@@ -38,15 +38,15 @@ def dias_cartera(email, company_id):
         ventas_netas = prefill_data.get("ventas_netas", 0)
 
         try:
-            promedio_cuentas_por_cobrar_clientes = float(promedio_cuentas_por_cobrar_clientes)
-            ventas_netas = float(ventas_netas)
+            promedio_cuentas_por_cobrar_clientes = 0 if promedio_cuentas_por_cobrar_clientes is None else float(promedio_cuentas_por_cobrar_clientes)
+            ventas_netas = 0 if ventas_netas is None else float(ventas_netas)
             if ventas_netas !=0:
                 dias_cartera_resultado = (promedio_cuentas_por_cobrar_clientes/ventas_netas)*365
-                st.markdown(f'Dias Cartera = :orange[{dias_cartera_resultado}]')
-                st.markdown(f'Entre la venta y la cobranza, transcurren :orange[**{dias_cartera_resultado}**] días.')
-                st.markdown('Nota: Mientras más chico el número de días es mejor')
+                st.info(f'Dias Cartera = :orange[{dias_cartera_resultado}]')
+                st.info(f'Entre la venta y la cobranza, transcurren :orange[**{dias_cartera_resultado}**] días.')
+                st.info('Nota: Mientras más chico el número de días es mejor')
             else:
-                st.write('Ventas Netas es cero, no se pueden calcular los días cartera')
+                st.error('Ventas Netas es cero, no se pueden calcular los días cartera')
         except ValueError:
             st.write('Los datos del promedio cuentas por cobrar a clientes o ventas netas no son numéricos')
 
@@ -59,15 +59,15 @@ def dias_proveedor(email, company_id):
         compras_netas = prefill_data.get("compras_netas", 0)
 
         try:
-            promedio_cuentas_por_pagar_proveedores = float(promedio_cuentas_por_pagar_proveedores)
-            compras_netas = float(compras_netas)
+            promedio_cuentas_por_pagar_proveedores = 0 if promedio_cuentas_por_pagar_proveedores is None else float(promedio_cuentas_por_pagar_proveedores)
+            compras_netas = 0 if compras_netas is None else float(compras_netas)
             if compras_netas !=0:
                 dias_proveedor_resultado = (promedio_cuentas_por_pagar_proveedores/compras_netas)*365
-                st.markdown(f'Dias Proveedor = :orange[{dias_proveedor_resultado}]')
-                st.markdown(f'Entre la compra de mercancía y su pago, transcurren :orange[**{dias_proveedor_resultado}**] días.')
-                st.markdown('Nota: Mientras más grande el número de días es mejor. Sin embargo debe analizarse junto con apalancamiento')
+                st.info(f'Dias Proveedor = :orange[{dias_proveedor_resultado}]')
+                st.info(f'Entre la compra de mercancía y su pago, transcurren :orange[**{dias_proveedor_resultado}**] días.')
+                st.info('Nota: Mientras más grande el número de días es mejor. Sin embargo debe analizarse junto con apalancamiento')
             else:
-                st.write('Compras Netas es cero, no se pueden calcular los días proveedor')
+                st.error('Compras Netas es cero, no se pueden calcular los días proveedor')
         except ValueError:
             st.write('Los datos del promedio cuentas por pagar a proveedores o compras netas no son numéricos')
 
@@ -80,15 +80,15 @@ def rentabilidad_ventas(email, company_id):
         ventas_netas = prefill_data.get("ventas_netas", 0)
 
         try:
-            utilidad_neta = float(utilidad_neta)
-            ventas_netas = float(ventas_netas)
+            utilidad_neta = 0 if utilidad_neta is None else float(utilidad_neta)
+            ventas_netas = 0 if ventas_netas is None else float(ventas_netas)
             if ventas_netas !=0:
                 rentabilidad_ventas_resultado = (utilidad_neta/ventas_netas)*100
-                st.markdown(f'Rentabilidad de las ventas = :orange[{rentabilidad_ventas_resultado}]')
-                st.markdown(f'De cada \$100 que vendo tengo una utilidad después de impuestos y PTU de :orange[**\${rentabilidad_ventas_resultado}**]')
-                st.markdown('Nota: Entre mayor utilidad mejor')
+                st.info(f'Rentabilidad de las ventas = :orange[{rentabilidad_ventas_resultado}]')
+                st.info(f'De cada \$100 que vendo tengo una utilidad después de impuestos y PTU de :orange[**\${rentabilidad_ventas_resultado}**]')
+                st.info('Nota: Entre mayor utilidad mejor')
             else:
-                st.write('Ventas Netas es cero, no se puede calcular la rentabilidad de las ventas')
+                st.error('Ventas Netas es cero, no se puede calcular la rentabilidad de las ventas')
         except ValueError:
             st.write('Los datos del utilidad neta o ventas netas no son numéricos')
 
@@ -101,15 +101,15 @@ def dias_inventario(email, company_id):
         costo_ventas = prefill_data.get("costo_ventas", 0)
 
         try:
-            promedio_inventarios = float(promedio_inventarios)
-            costo_ventas = float(costo_ventas)
+            promedio_inventarios = 0 if promedio_inventarios is None else float(promedio_inventarios)
+            costo_ventas = 0 if costo_ventas is None else float(costo_ventas)
             if costo_ventas !=0:
                 dias_inventario_resultado = (promedio_inventarios/costo_ventas)*365
-                st.markdown(f'Días inventario = :orange[{dias_inventario_resultado}]')
-                st.markdown(f'Entre la compra y la venta del inventario, transcurren :orange[**{dias_inventario_resultado}**] días')
-                st.markdown('Nota: Mientras más chico el número de días es mejor')
+                st.info(f'Días inventario = :orange[{dias_inventario_resultado}]')
+                st.info(f'Entre la compra y la venta del inventario, transcurren :orange[**{dias_inventario_resultado}**] días')
+                st.info('Nota: Mientras más chico el número de días es mejor')
             else:
-                st.write('Costo de ventas es cero, no se pueden calcular los días inventario')
+                st.error('Costo de ventas es cero, no se pueden calcular los días inventario')
         except ValueError:
             st.write('Los datos del promedio de inventarios o costo de ventas no son numéricos')
 
@@ -122,15 +122,15 @@ def apalancamiento(email, company_id):
         activo_total = prefill_data.get("activo_total", 0)
 
         try:
-            pasivo_total = float(pasivo_total)
-            activo_total = float(activo_total)
+            pasivo_total = 0 if pasivo_total is None else float(pasivo_total)
+            activo_total = 0 if activo_total is None else float(activo_total )
             if activo_total !=0:
                 apalancamiento_resultado = (pasivo_total/activo_total)
-                st.markdown(f'Apalancamiento = :orange[{apalancamiento_resultado}]')
-                st.markdown(f'De cada \$1 que tenemos en activo :orange[**\${apalancamiento_resultado}**] se deben.')
-                st.markdown('Nota: Número menor es mejor')
+                st.info(f'Apalancamiento = :orange[{apalancamiento_resultado}]')
+                st.info(f'De cada \$1 que tenemos en activo :orange[**\${apalancamiento_resultado}**] se deben.')
+                st.info('Nota: Número menor es mejor')
             else:
-                st.write('Activo total es cero, no se puede calcular el apalancamiento')
+                st.error('Activo total es cero, no se puede calcular el apalancamiento')
         except ValueError:
             st.write('Los datos del pasivo total o activo total no son numéricos')
 
@@ -144,12 +144,15 @@ def utilidad_neta(email, company_id):
         gastos_totales = prefill_data.get("gastos_totales", 0)
 
         try:
-            ventas_netas = float(ventas_netas)
-            costo_ventas = float(costo_ventas)
-            gastos_totales = float(gastos_totales)
+            ventas_netas = 0 if ventas_netas is None else float(ventas_netas)
+            costo_ventas = 0 if costo_ventas is None else float(costo_ventas)
+            if gastos_totales is not None:
+                gastos_totales = float(gastos_totales)
+            else:
+                gastos_totales = 0.0
             
             utilidad_neta_resultado = ventas_netas - costo_ventas - gastos_totales
-            st.markdown(f'Utilidad neta = :orange[{utilidad_neta_resultado}]')
+            st.info(f'Utilidad neta = :orange[{utilidad_neta_resultado}]')
         except ValueError:
             st.write('Los datos del pasivo total o activo total no son numéricos')
 

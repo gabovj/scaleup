@@ -1560,8 +1560,12 @@ def delete_cash(email, company_id,array_name, cash_item):
 def session_seven_cash(email, company_id):
     query = {"email_coach": email, "company_id": company_id}
     company_data = collection.find_one(query)
+    # Initialize prefill_data with a default value
+    prefill_data = {}
     if company_data:
         prefill_data = company_data.get("s7_metricas_efectivo", {})
+    # print("Prefill Data:", prefill_data)
+
     st.write('##### :orange[Metricas Clave de Efectivo]')
     col1, col2 = st.columns(2)
     with col1:
@@ -1573,20 +1577,32 @@ def session_seven_cash(email, company_id):
         col1, col2 = st.columns(2)
         with col1:
             st.write(':orange[Índice de Solvencia]')
-            activo_circulante = st.number_input('Activo circulante')
-            pasivo_corto_plazo = st.number_input('Pasivo corto plazo')
+            activo_circulante = st.number_input('Activo circulante', 
+                                                value=prefill_data.get("activo_circulante", None),
+                                                placeholder='Ingresa un valor')
+            pasivo_corto_plazo = st.number_input('Pasivo corto plazo', 
+                                                 value=prefill_data.get("pasivo_corto_plazo", None),
+                                                 placeholder='Ingresa un valor')
             mce.indice_solvencia(email, company_id)
             st.divider()
 
             st.write(':orange[Días Cartera]')
-            promedio_cuentas_por_cobrar_clientes = st.number_input('Promedio cuentas por cobrar a clientes')
-            ventas_netas = st.number_input('Ventas Netas')
+            promedio_cuentas_por_cobrar_clientes = st.number_input('Promedio cuentas por cobrar a clientes', 
+                                                                   value=prefill_data.get("promedio_cuentas_por_cobrar_clientes", None),
+                                                                   placeholder='Ingresa un valor')
+            ventas_netas = st.number_input('Ventas Netas', 
+                                           value=prefill_data.get("ventas_netas", None),
+                                           placeholder='Ingresa un valor')
             mce.dias_cartera(email, company_id)
             st.divider()
 
             st.write(':orange[Días proveedor]')
-            promedio_cuentas_por_pagar_proveedores = st.number_input('Promedio de cuentas por pagar a proveedores')
-            compras_netas = st.number_input('Compras netas (promedio de inventarios)')
+            promedio_cuentas_por_pagar_proveedores = st.number_input('Promedio de cuentas por pagar a proveedores', 
+                                                                     value=prefill_data.get("promedio_cuentas_por_pagar_proveedores", None),
+                                                                     placeholder='Ingresa un valor')
+            compras_netas = st.number_input('Compras netas (promedio de inventarios)', 
+                                            value=prefill_data.get("compras_netas", None), 
+                                            placeholder='Ingresa un valor')
             mce.dias_proveedor(email, company_id)
             st.divider()
 
@@ -1594,31 +1610,47 @@ def session_seven_cash(email, company_id):
             ventas_netas_display = prefill_data.get("ventas_netas", 0)
             costo_ventas_display = prefill_data.get("costo_ventas", 0)
             st.markdown('Ventas netas')
-            st.markdown(ventas_netas_display)
+            st.markdown(str(ventas_netas_display))  # Convert to string for display
             st.markdown('Costo de ventas')
-            st.markdown(costo_ventas_display)
-            gastos_totales = st.number_input('Gastos totales', value=None)
-            mce.utilidad_neta(email, company_id)
-            
-        
+            st.markdown(str(costo_ventas_display))  # Convert to string for display
+            gastos_totales = st.number_input('Gastos totales', 
+                                            value=prefill_data.get("gastos_totales", None),  # Default to 0 if None
+                                            placeholder='Ingresa un valor')
+            # if gastos_totales is None:
+            #     st.error("Please enter a value for 'Gastos totales' to proceed.")
+            # else:
+            mce.utilidad_neta(email, company_id)       
         
         with col2:
             st.write(':orange[Rentabilidad de las Ventas]')
-            utilidad_neta = st.number_input('Utilidad Neta')
+            utilidad_neta = st.number_input('Utilidad Neta',
+                                            value=prefill_data.get("utilidad_neta", None),
+                                            placeholder='Ingresa un valor')
             st.markdown('Ventas netas')
             st.markdown(ventas_netas_display)
             mce.rentabilidad_ventas(email, company_id)
             st.divider()
 
             st.write(':orange[Días Inventario]')
-            promedio_inventarios = st.number_input('Promedio inventarios')
-            costo_ventas = st.number_input('Costo de ventas')
+            promedio_inventarios = st.number_input('Promedio inventarios',
+                                                   value=prefill_data.get("promedio_inventarios", None),
+                                                   placeholder='Ingresa un valor')
+            costo_ventas = st.number_input('Costo de ventas',
+                                           value=prefill_data.get("costo_ventas", None),
+                                           placeholder='Ingresa un valor')
             mce.dias_inventario(email, company_id)
             st.divider()
 
             st.write(':orange[Apalancamiento]')
-            pasivo_total = st.number_input('Pasivo total', value=None)
-            activo_total = st.number_input('Activo total', value=None)
+            pasivo_total = st.number_input('Pasivo total', 
+                                           value=prefill_data.get("pasivo_total", None),
+                                           placeholder='Ingresa un valor')
+            activo_total = st.number_input('Activo total', 
+                                           value=prefill_data.get("activo_total", None),
+                                           placeholder='Ingresa un valor')
+            # if pasivo_total is None:
+            #     st.error("Please enter a value for 'Pasivo total' to proceed.")
+            # else:
             mce.apalancamiento(email, company_id)
 
         submit_metricas_clave_efectivo = st.form_submit_button(':orange[Calcular metricas]')
@@ -1665,7 +1697,10 @@ def session_seven_cash(email, company_id):
             except Exception as e:
                 st.error(f"An error occurred: {e}")
     
-    
+def extract_value(data):
+    if isinstance(data, dict):
+        return float(data.get("$numberDouble", 0))
+    return float(data)   
 
 def session_eight(email, company_id):
     col1, col2 = st.columns(2)
@@ -2019,7 +2054,10 @@ def session_eight_quarterly_company_priorities(email, company_id):
     # Try to retrieve existing data for the user
     query = {"email_coach": email, "company_id": company_id}
     existing_data = collection.find_one(query)    
-    prefill_data_2 = existing_data.get("s8_anual_company_priorities", {})
+    if existing_data:
+        prefill_data_2 = existing_data.get("s8_anual_company_priorities", {})
+    else:
+        prefill_data_2 = {}
     # Use list comprehension to extract 'company_priority' from each dictionary
     anual_priorities = [item['anual_company_priority'] for item in prefill_data_2]
     col1, col2 = st.columns(2)
@@ -2067,7 +2105,18 @@ def session_eight_quarterly_company_priorities(email, company_id):
                 update_doc = {"$push": quarterly_priority_item}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
-                # collection.insert_one(perfil)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Added: quarterly_priority_item",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": quarterly_priority_item
+                    }
+                }
+                log_collection.insert_one(log_entry)
                 st.success("Quarterly priority saved!")
                 st.rerun()
             except Exception as e:
@@ -2112,6 +2161,18 @@ def delete_quarterly_priority(email, company_id, priority_item):
             {"email_coach": email, "company_id": company_id},
             {"$pull": {'s8_quarterly_company_priorities': priority_item}}
         )
+        # Log the action
+        log_collection = db["ScaleUpActionLogs"]
+        log_entry = {
+            "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+            "action": "Deleted: quarterly_priority_item",
+            "details": {
+                "email": email,
+                "company_id": company_id,
+                "changes": priority_item
+            }
+        }
+        log_collection.insert_one(log_entry)
         st.success(" deleted!")
     except Exception as e:
         st.error(f"An error occurred: {e}")
@@ -2119,7 +2180,10 @@ def delete_quarterly_priority(email, company_id, priority_item):
 def session_eight_priorities_individual(email, company_id):
     query = {"email_coach": email, "company_id": company_id}
     existing_data = collection.find_one(query)
-    qcp_data = existing_data.get("s8_quarterly_company_priorities", {})
+    if existing_data:
+        qcp_data = existing_data.get("s8_quarterly_company_priorities", {})
+    else:
+        qcp_data = {} 
     q_priorities = [item['quarterly_company_priority'] for item in qcp_data]
     col1, col2 = st.columns(2)
     with col1:
@@ -2164,7 +2228,18 @@ def session_eight_priorities_individual(email, company_id):
                 update_doc = {"$push": individual_priority_item}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
-                # collection.insert_one(perfil)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Added: individual_priority_item",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": individual_priority_item
+                    }
+                }
+                log_collection.insert_one(log_entry)
                 st.success("Individual Priority saved!")
                 st.rerun()
             except Exception as e:
@@ -2209,6 +2284,18 @@ def delete_priority_individual(email, company_id, ipriority_item):
             {"email_coach": email, "company_id": company_id},
             {"$pull": {'s8_individual_priorities': ipriority_item}}
         )
+        # Log the action
+        log_collection = db["ScaleUpActionLogs"]
+        log_entry = {
+            "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+            "action": "Deleted: individual_priority_item",
+            "details": {
+                "email": email,
+                "company_id": company_id,
+                "changes": ipriority_item
+            }
+        }
+        log_collection.insert_one(log_entry)
         st.success(" deleted!")
     except Exception as e:
         st.error(f"An error occurred: {e}")
@@ -2304,7 +2391,18 @@ def session_eight_kpi(email, company_id):
                 update_doc = {"$push": stage_item}
                 # Use upsert=True to insert a new document if no matching document is found
                 collection.update_one(filter_doc, update_doc, upsert=True)
-                # collection.insert_one(perfil)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Added: kpi_stage_item",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": stage_item
+                    }
+                }
+                log_collection.insert_one(log_entry)
                 st.success("Stage saved!")
                 st.rerun()
             except Exception as e:
@@ -2355,6 +2453,18 @@ def delete_kpi(email, company_id, stage_item):
             {"email_coach": email, "company_id": company_id},
             {"$pull": {'s8_stage_kpis': stage_item}}
         )
+        # Log the action
+        log_collection = db["ScaleUpActionLogs"]
+        log_entry = {
+            "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+            "action": "Deleted: kpi_stage_item",
+            "details": {
+                "email": email,
+                "company_id": company_id,
+                "changes": stage_item
+            }
+        }
+        log_collection.insert_one(log_entry)
         st.success(f"{stage_item} deleted!")
     except Exception as e:
         st.error(f"An error occurred: {e}")

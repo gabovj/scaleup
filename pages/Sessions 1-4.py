@@ -88,6 +88,7 @@ if st.session_state["authenticated"]:
 
     with st.expander("##### 3- People: Right people in the right place"):
         session_forms.session_three(email, company_id_selected)
+        session_forms.session_three_extra(email, company_id_selected)
 
     with st.expander("##### 4- Strategy: Core Ideology (OPSP)"):
         session_forms.session_four_opsp(email)

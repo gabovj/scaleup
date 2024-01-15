@@ -937,16 +937,137 @@ def session_three(email, company_id):
     client = MongoClient(mongo_uri)
     db = client["ScalingUP"]
     collection = db["Companies"]
-    col1, col2 = st.columns(2)
-    with col1:
-        st.write(f"Company: :orange[{st.session_state['company_name']}]")
-    with col2:
-        st.write(f"Company ID: :orange[{st.session_state['company_id']}]")
-    st.divider()
-    show_face(email, company_id)
-    
+    # col1, col2 = st.columns(2)
+    # with col1:
+    #     st.write(f"Company: :orange[{st.session_state['company_name']}]")
+    # with col2:
+    #     st.write(f"Company ID: :orange[{st.session_state['company_id']}]")
+
     with st.form(key='s3', clear_on_submit=False):
         st.markdown('##### :orange[People: Function Accountability Chart (FACe)]')
+        col1, col2, col3= st.columns(3)
+        with col1:
+            st.write(':orange[Person Accountable]')
+            head_of_company_pa = st.text_area('Head of Company', key='head_of_company_pa', placeholder='Head of Company')
+            marketing_pa = st.text_area('Marketing', key='marketing_pa', placeholder='Marketing')
+            rd_innovation_pa = st.text_area('R/D Innovation', key='rd_innovation', placeholder='R/D Innovation')
+            sales_pa = st.text_area('Sales', key='sales', placeholder='Sales')
+            operations_pa = st.text_area('Operations', key='operations', placeholder='Operations')
+            treasury_pa = st.text_area('Treasury', key='treasury', placeholder='Treasury')
+            information_technology_pa = st.text_area('Information Technology', key='information_technology', placeholder='Information technology')
+            human_resources_pa = st.text_area('Human Resources', key='human_resources', placeholder='Human resources')
+            talent_development_learning_pa = st.text_area('Talent Development/Learning', key='talent_development_learning', placeholder='Talent Development/Learning')
+            customer_advocacy_pa = st.text_area('Customer Advocacy', key='customer_advocacy', placeholder='Customer Advocacy')
+            
+        with col2:
+            st.write(':orange[Leading Indicators]')
+            kpi_head_of_company = st.text_area('KPI for Head of Company', key='kpi_head_of_company')
+            kpi_marketing = st.text_area('KPI for Marketing', key='kpi_marketing')
+            kpi_rd_innovation = st.text_area('KPI for R/D Innovation', key='kpi_rd_innovation')
+            kpi_sales = st.text_area('KPI for Sales', key='kpi_sales')
+            kpi_operations = st.text_area('KPI for Operations', key='kpi_operations')
+            kpi_treasury = st.text_area('KPI for Treasury', key='kpi_treasury')
+            kpi_information_technology = st.text_area('KPI for Information Technology', key='kpi_information_technology')
+            kpi_human_resources = st.text_area('KPI for Human Resources', key='kpi_human_resources')
+            kpi_talent_development_learning = st.text_area('KPI for Talent Development/Learning', key='kpi_talent_development_learning')
+            kpi_customer_advocacy = st.text_area('KPI for Customer Advocacy', key='kpi_customer_advocacy')
+            
+        with col3:
+            st.write(':orange[Results/Outcomes]')
+            results_head_of_company = st.text_area('Results for Head of Company', key='results_head_of_company')
+            results_marketing = st.text_area('Results for Marketing', key='results_marketing')
+            results_rd_innovation = st.text_area('Results for R/D Innovation', key='results_rd_innovation')
+            results_sales = st.text_area('Results for Sales', key='results_sales')
+            results_operations = st.text_area('Results for Operations', key='results_operations')
+            results_treasury = st.text_area('Results for Treasury', key='results_treasury')
+            results_information_technology = st.text_area('Results for Information Technology', key='results_information_technology')
+            results_human_resources = st.text_area('Results for Human Resources', key='results_human_resources')
+            results_talent_development_learning = st.text_area('Results for Talent Development/Learning', key='results_talent_development_learning')
+            results_customer_advocacy = st.text_area('Results for Customer Advocacy', key='results_customer_advocacy')
+            
+        submitted_s3 = st.form_submit_button(":orange[Save People Functions]")
+        if submitted_s3:
+            try:
+                face_info ={
+                    "s3_face": {
+                        "head_of_company" : {
+                            "person_accountable" : head_of_company_pa,
+                            "kpi" : kpi_head_of_company,
+                            "results" : results_head_of_company
+                        },
+                        "marketing" : {
+                            "person_accountable" : marketing_pa,
+                            "kpi" : kpi_marketing,
+                            "results" : results_marketing
+                        },
+                        "rd_innovation" : {
+                            "person_accountable" : rd_innovation_pa,
+                            "kpi" : kpi_rd_innovation,
+                            "results" : results_rd_innovation
+                        },
+                        "sales" : {
+                            "person_accountable" : sales_pa,
+                            "kpi" : kpi_sales,
+                            "results" : results_sales
+                        },
+                        "operations" : {
+                            "person_accountable" : operations_pa,
+                            "kpi" : kpi_operations,
+                            "results" : results_operations
+                        },
+                        "treasury" : {
+                            "person_accountable" : treasury_pa,
+                            "kpi" : kpi_treasury,
+                            "results" : results_treasury
+                        },
+                        "information_technology" : {
+                            "person_accountable" : information_technology_pa,
+                            "kpi" : kpi_information_technology,
+                            "results" : results_information_technology
+                        },
+                        "human_resources" : {
+                            "person_accountable" : human_resources_pa,
+                            "kpi" : kpi_human_resources,
+                            "results" : results_human_resources
+                        },
+                        "talent_development_learning" : {
+                            "person_accountable" : talent_development_learning_pa,
+                            "kpi" : kpi_talent_development_learning,
+                            "results" : results_talent_development_learning
+                        },
+                        "customer_advocacy" : {
+                            "person_accountable" : customer_advocacy_pa,
+                            "kpi" : kpi_customer_advocacy,
+                            "results" : results_customer_advocacy
+                        }
+                    }
+                }
+                # Filter for the document to update
+                filter_doc = {"email_coach": email, "company_id": company_id}
+                 # Use the $set operator to update the desired fields
+                update_doc = {"$set": face_info}
+                # Use upsert=True to insert a new document if no matching document is found
+                collection.update_one(filter_doc, update_doc, upsert=True)
+                # Log the action
+                log_collection = db["ScaleUpActionLogs"]
+                log_entry = {
+                    "timestamp": datetime.now(),  # Ensure you import datetime from the datetime module
+                    "action": "Updated: s3_Face",
+                    "details": {
+                        "email": email,
+                        "company_id": company_id,
+                        "changes": face_info
+                    }
+                }
+                log_collection.insert_one(log_entry)
+                st.success("7 Strata saved!")
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
+        
+def session_three_extra(email, company_id):
+    st.markdown('##### :orange[Extra Functions]')
+    show_face(email, company_id)
+    with st.form('s3_face_extra'):
         col1, col2 = st.columns(2)
         with col1:
             function_name = st.text_input('Function')
@@ -955,11 +1076,11 @@ def session_three(email, company_id):
         leading_indicators = st.text_area('Leading Indicators')
         results_outcomes = st.text_area('Results / Outcomes')
         
-        submitted_s3 = st.form_submit_button(":orange[Save People Functions]")
-        if submitted_s3:
+        submitted_s3_extra = st.form_submit_button(":orange[Save Extra People Functions]")
+        if submitted_s3_extra:
             try:
                 face_item ={
-                    "s3_face": {
+                    "s3_face_extra": {
                         "function_name": function_name,
                         "person_accountable": person_accountable,
                         "leading_indicators": leading_indicators,
@@ -987,6 +1108,7 @@ def session_three(email, company_id):
                 st.success("FACe saved!")
                 time.sleep(1)
                 st.rerun()
+                
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
@@ -994,7 +1116,7 @@ def show_face(email, company_id):
     query = {"email_coach": email, "company_id": company_id}
     company_data = collection.find_one(query)
     if company_data:
-        face_data = company_data.get("s3_face", [])
+        face_data = company_data.get("s3_face_extra", [])
         name_db = company_data.get("company_name", "Unknown Company")
         for index, face in enumerate(face_data, start=1):
             # Use columns to layout face details and delete button
@@ -1023,7 +1145,7 @@ def delete_face(email, company_id, face_item):
     try:
         collection.update_one(
             {"email_coach": email, "company_id": company_id},
-            {"$pull": {"s3_face": face_item}}
+            {"$pull": {"s3_face_extra": face_item}}
         )
         # Log the action
         log_collection = db["ScaleUpActionLogs"]

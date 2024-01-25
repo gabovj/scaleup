@@ -40,7 +40,8 @@ def get_auth_code():
     Returns:
         Nothing.
     """
-    auth_query_params = st.query_params
+    # auth_query_params = st.query_params
+    auth_query_params = st.experimental_get_query_params()
     print(auth_query_params)  # checando esta linea y la de arriba
     try:
         auth_code = dict(auth_query_params)["code"][0]

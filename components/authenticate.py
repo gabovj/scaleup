@@ -58,9 +58,8 @@ def get_auth_code():
         The authorization code if present in the query parameters, otherwise an empty string.
     """
     
-    # Use st.query_params() instead of the deprecated st.experimental_get_query_params()
-    auth_query_params = st.query_params()
-    print(auth_query_params)  # Checking this line
+    # Access st.query_params as a property, not as a function
+    auth_query_params = st.query_params
     
     # Access the 'code' parameter directly from auth_query_params
     try:
@@ -70,8 +69,6 @@ def get_auth_code():
         auth_code = ""
 
     return auth_code
-
-
 
 # ----------------------------------
 # Set authorization code after login

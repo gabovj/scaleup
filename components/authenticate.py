@@ -67,7 +67,7 @@ def get_auth_code():
         auth_code = auth_query_params.get("code", [""])[0]
     except (KeyError, TypeError):
         auth_code = ""
-
+    print(auth_code)
     return auth_code
 
 # ----------------------------------

@@ -33,22 +33,44 @@ def initialise_st_state_vars():
 # ----------------------------------
 # Get authorization code after login
 # ----------------------------------
+# def get_auth_code():
+#     """
+#     Gets auth_code state variable.
+
+#     Returns:
+#         Nothing.
+#     """
+#     # auth_query_params = st.query_params
+#     auth_query_params = st.experimental_get_query_params()
+#     print(auth_query_params)  # checando esta linea y la de arriba
+#     try:
+#         auth_code = dict(auth_query_params)["code"][0]
+#     except (KeyError, TypeError):
+#         auth_code = ""
+
+#     return auth_code
+        
 def get_auth_code():
     """
     Gets auth_code state variable.
 
     Returns:
-        Nothing.
+        The authorization code if present in the query parameters, otherwise an empty string.
     """
-    # auth_query_params = st.query_params
-    auth_query_params = st.experimental_get_query_params()
-    print(auth_query_params)  # checando esta linea y la de arriba
+    
+    # Use st.query_params() instead of the deprecated st.experimental_get_query_params()
+    auth_query_params = st.query_params()
+    print(auth_query_params)  # Checking this line
+    
+    # Access the 'code' parameter directly from auth_query_params
     try:
-        auth_code = dict(auth_query_params)["code"][0]
+        # If 'code' is present, get the first value, otherwise default to an empty string
+        auth_code = auth_query_params.get("code", [""])[0]
     except (KeyError, TypeError):
         auth_code = ""
 
     return auth_code
+
 
 
 # ----------------------------------
